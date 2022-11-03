@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Yolo</title>
+{% endblock %}
+
+{% block body %}
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"> </script>
+<script type=text/javascript> $(function() {$("#record").click(function (event) { $.getJSON('/record', { },
+    function(data) { }); return false; }); }); </script>
+<!--<div id="display_container" visible="True">-->
+<!--    &lt;!&ndash;  SVG scene  which we use as a canvas   &ndash;&gt;-->
+<!--    <svg xmlns="http://www.w3.org/2000/svg"-->
+<!--         xmlns:ev="http://www.w3.org/2001/xml-events" version="1.1"-->
+<!--         id="svgRoot"-->
+<!--         width="100%" height="100%" style="background-color:#ffffff;-->
+<!--                   image-rendering: -moz-crisp-edges;         /* Firefox */-->
+<!--                   image-rendering:   -o-crisp-edges;         /* Opera */-->
+<!--                   image-rendering: pixelated;                /* Chrome */-->
+<!--                   -ms-interpolation-mode: nearest-neighbor;  /* IE (non-standard property) */-->
+<!--"-->
+<!--         baseProfile="full">-->
+<!--        <g id="scene">-->
+<!--            <image id='myDisplay' x="0" y="0"  width="100%" height="100%"  xlink:href="", href="" pointer-events="none"/>-->
+<!--&lt;!&ndash;            <image id='mySnippet' x="0" y="0" height="600" width="800"  xlink:href="", href="" pointer-events="none"/>&ndash;&gt;-->
+<!--        </g>-->
+<!--    </svg>-->
+<!--</div>-->
+<div>
+    <img src="{{ url_for('video_feed') }}" width="50%"/>
+</div>
+
+<div class="framerate">
+    <h1 style="text-align: center">Settings</h1>
+
+    <div class="form">
+        <form action="/index?framerate={{new_framerate}}&duration={{new_duration}}&pressure={{new_pressure}}&aperture={{new_aperture}}&imaging_position={{new_imaging_position}}&bioink={{new_bioink}}&room_temperature={{new_room_temperature}}&cell_type={{new_cell_type}}&cell_passage_nr={{new_cell_passage_nr}}&time_after_harvest={{new_time_after_harvest}}&treatment={{new_treatment}}&" method="POST">
+            {% for key,value in data.items()%}
+            <p>{{key}}</p>
+            <input type="text" name="{{key}}" id="{{key}}" value="{{value}}">
+            {% endfor %}
+            <input type="submit" value="Change settings">
+        </form>
+
+        <form action="/index?record={{record}}" method="POST">
+            <input type = "button" id = "record" value="Record">
+        </form>
+    </div>
+</div>
+
+
+<div id='chart' class='chart'”></div>
+
+
+<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+<script type='text/javascript'>
+  var graphs = {{graphJSON | safe}};
+  Plotly.plot('chart',graphs,{});
+</script>
+<script type="text/javascript" src="static/main.js" ></script>
+
+{% endblock %}

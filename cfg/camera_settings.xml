@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<memmap file="camera_settings.mmap">
+	<entry name="framerate" type="uint32"/>
+	<entry name="duration" type="uint32"/>
+
+	<entry name="gain" type="uint32"/>
+	<entry name="save_path" type="S1000"/>
+	<entry name="start_time" type="S100"/>
+
+	<entry name="pressure" type="S100"/>
+	<entry name="aperture" type="S100"/>
+	<entry name="imaging_position" type="S100"/>
+	<entry name="bioink" type="S100"/>
+	<entry name="room_temperature" type="S100"/>
+	<entry name="cell_type" type="S100"/>
+	<entry name="cell_passage_nr" type="S100"/>
+	<entry name="time_after_harvest" type="S100"/>
+	<entry name="treatment" type="S100"  />
+</memmap>
+

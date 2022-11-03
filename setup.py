@@ -5,7 +5,7 @@ from setuptools import setup
 setup(name='YoloViwer',
       version="0.1",
       description='',
-      author='Johannes Bartl, Sebastian Bohle',
+      author='Johannes Bartl, Sebastian Bohle, Alexander Winterl',
       author_email='',
       packages=['pylonBasler'],
       python_requires=">=3.6.*",
@@ -19,8 +19,10 @@ setup(name='YoloViwer',
             "flask",
             "tifffile",
             "clickpoints",
-            "Pillow"
+            "Pillow",
+            "pandas"
 
       ],
       # dependency_links= ["https://github.com/basler/pypylon/releases/download/1.4.0/pypylon-1.4.0-cp37-cp37m-linux_armv7l.whl"]
       )
+

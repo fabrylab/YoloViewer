@@ -1,0 +1,22 @@
+[default]
+version = 1
+
+[setup]
+channel width = 200 um
+channel length = 5.8 cm
+cell temperature = 23 deg C
+
+[microscope]
+microscope = Leica DM 6000
+objective = 40 x
+na = 0.6
+coupler = 0.5 x
+
+[camera]
+camera = Basler acA20-520
+camera pixel size = 6.9 um
+output_mmap = cfg/camera_acA720-520um_landscape.xml
+settings_mmap = cfg/camera_settings.xml
+transpose_image = False
+flip_x = True
+flip_y = True
