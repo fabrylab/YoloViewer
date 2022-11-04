@@ -35,6 +35,7 @@ def rec():
 
     framerate = smap.framerate
     duration = smap.duration
+    duration = 5
     save_path = smap.save_path
     save_path = r'C:\Software\YoloViewer'
 
@@ -117,6 +118,7 @@ def rec():
 
     #get data from database
     db_file = r'C:\Software\YoloViewer\database\detections.db'
+    time.sleep(10) #TODO wait to get all detections from db
     df = fetch_larger_t0(db_file,rec_start*1e6)
     columns = ['timestamp', 'frame', 'x', 'y', 'w', 'h', 'p', 'angle', 'long_axis', 'short_axis', 'radial_position',
                'measured_velocity', 'cell_id',
@@ -146,12 +148,19 @@ def rec():
         timestamps = np.array(timestamps)
 
         ts_detection = np.array(df['timestamp'])
-        frames = np.argwhere(np.isin(timestamps, ts_detection)).ravel()
+        #ind = np.argwhere(np.isin(ts_detection,timestamps)).ravel()
+        ind = [ts in timestamps for ts in ts_detection]
+        #solve this more elegantly #TODO
+        #PROBLEM: b = array([1, 2, 3, 4, 5, 7, 8])
+        #         c = array([1, 1, 3])
+        #   return 0,0,2
+        frames = [np.where(timestamps==ts)[0] for ts in ts_detection ]
+        frames = [int(f) for f in frames if len(f)==1]
         angle = np.where(arr[:,6]>90.,arr[:,6]-180.,arr[:,6])
 
-        cdb.setEllipses(x=np.array(arr[:,2]), y=arr[:,3], width=arr[:,4],
-                        height=arr[:,5], angle=angle,
-                        frame=list(frames.astype(int)),
+        cdb.setEllipses(x=np.array(arr[:,2][ind]), y=arr[:,3][ind], width=arr[:,4][ind],
+                        height=arr[:,5][ind], angle=angle[ind],
+                        frame=frames,
                         type=mtype  # ,[f'{i}' for i in c.T[~np.any(NM, axis=1)]])
                         )
 

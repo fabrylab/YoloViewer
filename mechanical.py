@@ -6,6 +6,7 @@ from helper_functions import create_config
 import pandas as pd
 from mechanical_helper import *
 import signal
+import time
 
 cfg = configparser.ConfigParser()
 cfg.read("cfg/config.txt")
@@ -31,6 +32,7 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 while run:
+    t0 = time.time()
     config = create_config(smap,cfg)
 
     all_data = np.array((fetch_ellipses_larger_t0(db_file, t0)))
@@ -83,6 +85,6 @@ while run:
     get_cell_properties(df)
 
     #write to db
-    df.to_csv(r'\\131.188.117.96\biophysDS2\jbartl\del-me.csv')
+    #df.to_csv(r'\\131.188.117.96\biophysDS2\jbartl\del-me.csv')
     write_mechanical(db_file,df)
-    print('')
+    print(time.time()-t0)

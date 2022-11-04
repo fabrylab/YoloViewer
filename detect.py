@@ -24,11 +24,8 @@ config = configparser.ConfigParser()
 config.read("cfg/config.txt")
 output_mmap = config["camera"]["output_mmap"]
 settings_mmap = config["camera"]["settings_mmap"]
-yolo_output_mmap = config["camera"]["yolo_output_mmap"]
 
 smap = MemMap(settings_mmap)
-outmap = MemMap(yolo_output_mmap)
-#mmap = MemMap(output_mmap)
 
 
 #first_ts_s = mmap.rbf[0].time_unix

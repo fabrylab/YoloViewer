@@ -104,7 +104,7 @@ def index():
 @app.route('/video_feed')
 def video_feed():
     return Response(gen(image_buffer),mimetype='multipart/x-mixed-replace; boundary=frame')
-
+#TODO record is executed at start of pylonFlask
 @app.route('/record', methods=['POST', 'GET'])
 def record():
     print('RECORDING',file=sys.stderr)
