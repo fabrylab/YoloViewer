@@ -13,7 +13,7 @@ import plotly.express as px
 import pandas as pd
 app = Flask(__name__)
 import json
-
+import win32api
 
 #read config
 config = configparser.ConfigParser()
@@ -105,15 +105,21 @@ def index():
 def video_feed():
     return Response(gen(image_buffer),mimetype='multipart/x-mixed-replace; boundary=frame')
 #TODO record is executed at start of pylonFlask
-@app.route('/record', methods=['POST', 'GET'])
+@app.route('/record')
 def record():
     print('RECORDING',file=sys.stderr)
     rec()
     return ""
 
+# @app.route('/get_ell_after_t0')
+# def get_ell_after_t0():
+#     a = 5
+#     return a
 
+@app.route('/set_t0')
 def set_t0():
-    smap.start_time = time.time()
+    smap.t0 = time.time()*1e6
+    return ""
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

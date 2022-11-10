@@ -16,8 +16,7 @@ smap = MemMap(settings_mmap)
 
 
 #get t0
-t0 = smap.start_time
-t0 = 0 #TODO
+t0 = smap.t0
 
 #read db from t0
 db_file = r'C:\Software\YoloViewer\database\detections.db'
@@ -32,7 +31,7 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 while run:
-    t0 = time.time()
+    starting = time.time()
     config = create_config(smap,cfg)
 
     all_data = np.array((fetch_ellipses_larger_t0(db_file, t0)))
@@ -87,4 +86,4 @@ while run:
     #write to db
     #df.to_csv(r'\\131.188.117.96\biophysDS2\jbartl\del-me.csv')
     write_mechanical(db_file,df)
-    print(time.time()-t0)
+    print(time.time()-starting)

@@ -35,7 +35,7 @@ def rec():
 
     framerate = smap.framerate
     duration = smap.duration
-    duration = 5
+    #duration = 5
     save_path = smap.save_path
     save_path = r'C:\Software\YoloViewer'
 
@@ -63,8 +63,9 @@ def rec():
     timestamps = []
 
     #all_detections = []
-    rec_start = time.time()
-    while time.time()-rec_start < duration:
+    t0 = time.time()*1e6
+    smap.t0 = t0
+    while time.time()-t0 < duration:
         img = None
         meta_data = {}
         tstart = datetime.now()
@@ -88,28 +89,6 @@ def rec():
             compression =0 #"jpeg" 0.005s, compression:0 0.001, 4:
             tiffWriter.save(img, compression=compression, metadata=meta_data, contiguous=False)
 
-
-            #all_data = []
-            #ts_detections = []
-
-            #for slot in range(len(outmap.rbf)):
-            #    d = outmap.rbf[slot].data
-            #    ts_det = outmap.rbf[slot].time_us
-            #    all_data.append(d)
-            #    ts_detections.append(ts_det)
-
-            #all_data = np.array(all_data)
-            #ts_detections = np.array(ts_detections)
-#
-            #correct the imageID from batch to global tiff stack
-            #ts_recording = np.array(timestamps)
-            #ind = np.argwhere(np.isin(ts_recording, ts_detections)).ravel()
-#
-            #mask = np.isin(ts_detections, ts_recording).ravel()
-            #print('IND',ind)
-            # all_data = all_data[all_data[:, -1] < N]
-            #all_detections.append(all_data[mask])
-
             timeUsed = (datetime.now()-tstart).total_seconds()
             time.sleep(max(0, (sleeptime-timeUsed-0.01)))
             timeUsed = (datetime.now()-tstart).total_seconds()
@@ -119,7 +98,7 @@ def rec():
     #get data from database
     db_file = r'C:\Software\YoloViewer\database\detections.db'
     time.sleep(10) #TODO wait to get all detections from db
-    df = fetch_larger_t0(db_file,rec_start*1e6)
+    df = fetch_larger_t0(db_file,t0)
     columns = ['timestamp', 'frame', 'x', 'y', 'w', 'h', 'p', 'angle', 'long_axis', 'short_axis', 'radial_position',
                'measured_velocity', 'cell_id',
                'stress', 'strain', 'area', 'pressure', 'vel_fit_error', 'vel', 'vel_grad', 'eta', 'eta0', 'delta',
@@ -171,4 +150,4 @@ def rec():
     config_path = os.path.join(save_path, f"{tif_name}_config.txt")
     write_config(config_path,smap)
 
-rec()
+#rec()

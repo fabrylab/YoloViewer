@@ -5,7 +5,7 @@
 
 	<entry name="gain" type="uint32"/>
 	<entry name="save_path" type="S1000"/>
-	<entry name="start_time" type="S100"/>
+	<entry name="t0" type="uint64"/>
 
 	<entry name="pressure" type="S100"/>
 	<entry name="aperture" type="S100"/>
