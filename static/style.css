@@ -1,5 +1,6 @@
-body {
-    margin: 30px;
+  body {
+    margin: 10px;
+    font-family: sans-serif;
   }
 
   h1 {
@@ -58,3 +59,184 @@ body {
     overflow: hidden;
     background-color: #f1f1f1;
   }
+
+  #plot_wrapper {
+    position:absolute;
+    top: 25px;
+    right: 10px;
+    display: flex;
+    border 1px solid black;
+  }
+
+   #plot_wrapper2 {
+    position: absolute;
+    right: 10px;
+    top: 375px;
+    display: flex;
+    border 1px solid black;
+  }
+
+  .plot {
+    width: 350px;
+    height: 350px;
+    border: 1px solid red;
+  }
+
+    .plot_large {
+    width: 700px;
+    height: 350px;
+    border: 1px solid red;
+  }
+
+  .btn-group button {
+  background-color: DodgerBlue; /* Blue background */
+  border: 1px solid Black; /* Blue border */
+  color: white; /* White text */
+  padding: 10px 24px; /* Some padding */
+  cursor: pointer; /* Pointer/hand icon */
+  float: left; /* Float the buttons side by side */
+}
+
+.btn-group button:not(:last-child) {
+  border-right: none; /* Prevent double borders */
+}
+
+/* Clear floats (clearfix hack) */
+.btn-group:after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+/* Add a background color on hover */
+.btn-group button:hover {
+  background-color: RoyalBlue;
+}
+
+.fa-circle {
+  color: red;
+}
+
+#status {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    height: 25px;
+    border: black 1px;
+
+    width: 100vw;
+    display: block;
+}
+
+.settings {
+    float:right;
+  }
+
+.framerate {
+    font-size: 14px;
+    position: absolute;
+    left: 30px;
+    bottom: 0px;
+  }
+
+.fa-question {
+    color: blue;
+    float: right;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    margin-left: 10px;
+    height:25px;
+    width: 25px;
+    text-align: center;
+    opacity: 1.0;
+}
+
+#detect_light {
+    color: grey;
+    float: right;
+    position: absolute;
+    top: 0px;
+    right: 25px;
+    margin-left: 10px;
+    height:25px;
+    width: 25px;
+    text-align: center;
+    opacity: 1.0;
+}
+
+#mechanical_light {
+    color: grey;
+    float: right;
+    position: absolute;
+    top: 0px;
+    right: 50px;
+    margin-left: 10px;
+    height:25px;
+    width: 25px;
+    text-align: center;
+    opacity: 1.0;
+}
+
+#aqc_light {
+    color: grey;
+    float: right;
+    position: absolute;
+    top: 0px;
+    right: 75px;
+    margin-left: 10px;
+    height:25px;
+    width: 25px;
+    text-align: center;
+    opacity: 1.0;
+}
+
+#flask_light {
+    color: grey;
+    float: right;
+    position: absolute;
+    top: 0px;
+    right: 100px;
+    margin-left: 10px;
+    height:25px;
+    width: 25px;
+    text-align: center;
+    opacity: 1.0;
+}
+
+.w3-green,.w3-hover-green:hover{color:#fff!important;background-color:DodgerBlue!important}
+.w3-light-grey,.w3-hover-light-grey:hover,.w3-light-gray,.w3-hover-light-gray:hover{color:#000!important;background-color:#f1f1f1!important}
+.w3-button:hover{color:#000!important;background-color:#ccc!important}
+
+#notes_div{
+    position:absolute;
+    left:400px;
+    bottom: 125px;
+}
+
+#microscope_settings_div{
+    position:absolute;
+    left: 320px;
+    border: 2px solid black;
+    width: 545px;
+    height: 250px;
+}
+
+   #plot_wrapper3 {
+    position: absolute;
+    left: 1080px;
+    top: 725px;
+    width: 1000px;
+    height: 270px;
+    display: none;
+    border: 1px solid black;
+  }
+
+#playground_plot{
+    position:absolute;
+    right:130px;
+    bottom:1px;
+    width: 500px;
+    height: 270px;
+    border: 1px solid red;
+}

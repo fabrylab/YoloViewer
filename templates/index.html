@@ -1,54 +1,38 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<title>Yolo</title>
+<title>YoloViewer</title>
 <link rel="stylesheet" href="static/style.css" />
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<element onload="get_ell_after_t0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<!--<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">-->
 
 {% endblock %}
 
 {% block body %}
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"> </script>
-
-<!--<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>-->
-<script type=text/javascript> $(function() {$("#record").click(function (event) { $.getJSON('/record', { },
-    function(data) { }); return false; }); }); </script>
     <script
       src="https://unpkg.com/panzoom@9.4.0/dist/panzoom.min.js"
       query="#scene"
       name="pz"
     ></script>
-<!--<div id="display_container" visible="True">-->
-<!--    &lt;!&ndash;  SVG scene  which we use as a canvas   &ndash;&gt;-->
-<!--    <svg xmlns="http://www.w3.org/2000/svg"-->
-<!--         xmlns:ev="http://www.w3.org/2001/xml-events" version="1.1"-->
-<!--         id="svgRoot"-->
-<!--         width="100%" height="100%" style="background-color:#ffffff;-->
-<!--                   image-rendering: -moz-crisp-edges;         /* Firefox */-->
-<!--                   image-rendering:   -o-crisp-edges;         /* Opera */-->
-<!--                   image-rendering: pixelated;                /* Chrome */-->
-<!--                   -ms-interpolation-mode: nearest-neighbor;  /* IE (non-standard property) */-->
-<!--"-->
-<!--         baseProfile="full">-->
-<!--        <g id="scene">-->
-<!--            <image id='myDisplay' x="0" y="0"  width="100%" height="100%"  xlink:href="", href="" pointer-events="none"/>-->
-<!--&lt;!&ndash;            <image id='mySnippet' x="0" y="0" height="600" width="800"  xlink:href="", href="" pointer-events="none"/>&ndash;&gt;-->
-<!--        </g>-->
-<!--    </svg>-->
-<!--</div>-->
-<!--<div>-->
-<!--    <img src="{{ url_for('video_feed') }}" width="50%"/>-->
-<!--</div>-->
-
-    <h1>Webcam Stream with Buttons</h1>
+<div id="status" class="status">
+    <i id="detect_light" class="fa fa-circle"></i>
+    <i id="mechanical_light" class="fa fa-circle"></i>
+    <i id="aqc_light" class="fa fa-circle"></i>
+    <i id="flask_light" class="fa fa-circle"></i>
+    <i  class="fa fa-question"></i>
+    <input type="button" class="fa fa-question" onclick="(function(){alert('For help ask Johannes Bartl or Sebastian Bohle');return false;
+    })();return false;" style="color:grey; opacity: 0.2"
+    </input>
+</div>
+    <h1>YoloViewer Version 0.2</h1>
     <svg
       version="1.1"
       class="center-block"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
-      width="800"
-      height="600"
+      width="600"
+      height="400"
     >
       <g id="scene">
         <g>
@@ -59,46 +43,70 @@
         </g>
       </g>
     </svg>
-    <button id="stop">Stop Video</button>
-    <button id="start">Start Video</button>
-    <button id="dummy">Start Dummy-Video</button>
-
-<button type="button" class="collapsible">Show/Hide Settings</button>
-
-<div class="framerate" style="display:none">
+<div class="btn-group">
+    <button id= "dummy"><i class="fa fa-play"></i></button>
+    <button id = "record" value="Record"><i class="fa fa-circle"></i></button>
+    <button id = "show_duration"></button>
+    <button id = "show_framerate"></button>
+    <button id = "show_gain"></button>
+    <button id = "save" onclick="pop()">select Save-Path</button>
+    <button id = "clear">Clear Plots</button>
+    <button id = "pause"><i class="fa fa-pause"></i> Live</button>
+    <button id = "plot">Plot</button>
+<!--    <button class="w3-button w3-green" onclick="move()">Click Me</button>-->
+</div>
+  <div id ="progress_bar" class="w3-light-grey" style="width:875px">
+    <div id="myBar" class="w3-green" style="height:24px;width:0%"></div>
+  </div>
+  <br>
+<!--<button class="collapsible">Show/Hide Settings</button>-->
+<div id="settings" class="framerate" style="display:block">
     <h2 style="text-align: center">Settings</h2>
-
     <div class="form">
         <form action="/index?framerate={{new_framerate}}&duration={{new_duration}}&pressure={{new_pressure}}&aperture={{new_aperture}}&imaging_position={{new_imaging_position}}&bioink={{new_bioink}}&room_temperature={{new_room_temperature}}&cell_type={{new_cell_type}}&cell_passage_nr={{new_cell_passage_nr}}&time_after_harvest={{new_time_after_harvest}}&treatment={{new_treatment}}&" method="POST">
             {% for key,value in data.items()%}
-            <p>{{key}}</p>
-            <input type="text" name="{{key}}" id="{{key}}" value="{{value}}">
+            <p>{{key}} <input type="text" class="settings" name="{{key}}" id="{{key}}" value="{{value}}"></p>
             {% endfor %}
             <button type="submit" value="Change settings">Change settings</button>
         </form>
-
-        <form action="/index?record={{record}}" method="POST">
-            <button type = "button" id = "record" value="Record" >Record</button>
-        </form>
     </div>
 </div>
-<button type="submit" id = "clear">Clear</button>
-<div id="graph"></div>
+<div id="notes_div"><button onclick="notes()">Notes</button><button id="save_notes" onclick="saveTextAsFile()" style="display:none">Save Notes</button></div>
+<div id="microscope_settings_div"></div>
+    <div id="plot_wrapper">
+        <div id="graph3" style="display:none" class="plot"></div>
+        <div id="graph" style="display:none" class="plot_large"></div>
+            </div>
+<div id="plot_wrapper2" >
+        <div id="graph4" style="display:none" class="plot"></div>
+        <div id="graph2" style="display:none" class="plot"></div>
+        <div id="graph5" style="display:none" class="plot"></div>
+     </div>
+<div id="plot_wrapper3">
+    <select id="plot_selector_1" onchange="for_update()">
+        <option value="-1" selected="selected">Select x-axis</option>
+        {% for value in columns%}
+            <option {{key}}  name="select_{{key}}" id="select_{{key}}" value="{{value}}">{{value}}</option>
+        {% endfor %}
+    </select>
+    <select id="plot_selector_2" onchange="for_update()">
+        <option value="-1" selected="selected">Select y-axis</option>
+        {% for value in columns%}
+            <option {{key}}  name="select2_{{key}}" id="select2_{{key}}" value="{{value}}">{{value}}</option>
+        {% endfor %}
+    </select>
+    <button id = "update_playground" onclick="update()">Update</button></br>
+    <div id="playground_plot" style="display:None"></div>
+</div>
 
-<!--<div id='chart' class='chart'”></div>-->
 
+<p id="demo"></p>
 
 <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
-<!--<script type='text/javascript'>-->
-<!--  var graphs = {{graphJSON | safe}};-->
-<!--  Plotly.plot('chart',graphs,{});-->
-<!--</script>-->
-<script type="text/javascript" src="static/main.js" ></script>
-<script type="text/javascript" src="static/camera.js" ></script>
+<script type="text/javascript" src="static/main.js"></script>
 <script>
-var coll = document.getElementsByClassName("collapsible");
+    var coll = document.getElementsByClassName("collapsible");
 var i;
-
 for (i = 0; i < coll.length; i++) {
   coll[i].addEventListener("click", function() {
     this.classList.toggle("active");

@@ -13,6 +13,7 @@ import os
 
 
 os.environ["CUDA_VISIBLE_DEVICES"]="0"
+# TF_GPU_ALLOCATOR=cuda_malloc_async
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
@@ -49,7 +50,7 @@ smap = MemMap(settings_mmap)
 #first_ts_us = mmap.rbf[0].time_us
 #print(first_ts_s,first_ts_us)
 
-#crate database
+#create database
 #create connection to db
 db_file = r'C:\Software\YoloViewer\database\detections.db'
 clear_db(db_file)
@@ -124,8 +125,8 @@ while run:
         #ts = meta_data.pop("timestamp_us")
 
     start0 = time()
-    images, meta_data = image_buffer.getNOldestImags(N=32)
-    images = tf.cast(images,tf.float32)
+    images, meta_data = image_buffer.getNOldestImags(N=batch_size)
+    # images = tf.cast(images,tf.float32)
     print("load",time()-start0)
     #model(images)
     pred = model.predict(images)

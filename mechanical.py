@@ -16,9 +16,11 @@ smap = MemMap(settings_mmap)
 
 
 #get t0
-t0 = smap.t0
+t0 = smap.t0/10
+print(smap.t0)
+print(t0)
+#1669198039
 
-#read db from t0
 db_file = r'C:\Software\YoloViewer\database\detections.db'
 # setup ctrl + c handler
 
@@ -33,7 +35,6 @@ signal.signal(signal.SIGINT, signal_handler)
 while run:
     starting = time.time()
     config = create_config(smap,cfg)
-
     all_data = np.array((fetch_ellipses_larger_t0(db_file, t0)))
     df = pd.DataFrame(all_data,columns=['timestamp','frame','x', 'y', 'w', 'h', 'p'])
 

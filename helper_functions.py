@@ -27,7 +27,8 @@ class ImageBuffer():
         metaList = []
         for idx in indices:
             imList.append(
-                tf.convert_to_tensor(self.mmap.rbf[idx].image.astype(np.uint8)[None,:])
+                # tf.convert_to_tensor(self.mmap.rbf[idx].image.astype(np.uint8)[None,:])
+                self.mmap.rbf[idx].image.astype(np.float32)[None, :]
             )
             metaList.append({
                 'timestamp_us': int(

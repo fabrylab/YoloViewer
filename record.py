@@ -37,7 +37,7 @@ def rec():
     duration = smap.duration
     #duration = 5
     save_path = smap.save_path
-    save_path = r'C:\Software\YoloViewer'
+    save_path = r'C:\Software\YoloViewer\dumping'
 
 
     sleeptime = 1/framerate
@@ -65,7 +65,7 @@ def rec():
     #all_detections = []
     t0 = time.time()*1e6
     smap.t0 = t0
-    while time.time()-t0 < duration:
+    while time.time()*1e6-t0 < duration:
         img = None
         meta_data = {}
         tstart = datetime.now()

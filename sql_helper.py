@@ -100,3 +100,17 @@ def clear_db(db_file):
         conn.close()
     except sqlite3.Error as e:
         print(e)
+
+# NOT working, unknown reason
+def fetch_larger_t0_json(db_file, t0):
+    try:
+        conn = connect(db_file)
+        c = conn.cursor()
+        c.execute("SELECT json_object(*) FROM data WHERE timestamp > (?);",(t0,))
+        items = c.fetchall()
+        conn.commit()
+        conn.close()
+        return items
+
+    except sqlite3.Error as e:
+        print(e)
