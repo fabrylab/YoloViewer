@@ -210,7 +210,7 @@
 
 #notes_div{
     position:absolute;
-    left:400px;
+    left:320px;
     bottom: 125px;
 }
 
@@ -239,4 +239,12 @@
     width: 500px;
     height: 270px;
     border: 1px solid red;
+}
+
+.settings_new{
+    float: left;
+}
+
+#change_settings{
+    font-size: 12px;
 }

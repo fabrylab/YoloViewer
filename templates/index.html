@@ -25,15 +25,14 @@
     })();return false;" style="color:grey; opacity: 0.2"
     </input>
 </div>
-    <h1>YoloViewer Version 0.2</h1>
+    <h1>YoloViewer Version 0.3</h1>
     <svg
       version="1.1"
       class="center-block"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       width="600"
-      height="400"
-    >
+      height="400">
       <g id="scene">
         <g>
           <foreignObject x="0" y="0" width="500" height="400">
@@ -60,7 +59,7 @@
   </div>
   <br>
 <!--<button class="collapsible">Show/Hide Settings</button>-->
-<div id="settings" class="framerate" style="display:block">
+<div id="settings" class="framerate" style="display:none">
     <h2 style="text-align: center">Settings</h2>
     <div class="form">
         <form action="/index?framerate={{new_framerate}}&duration={{new_duration}}&pressure={{new_pressure}}&aperture={{new_aperture}}&imaging_position={{new_imaging_position}}&bioink={{new_bioink}}&room_temperature={{new_room_temperature}}&cell_type={{new_cell_type}}&cell_passage_nr={{new_cell_passage_nr}}&time_after_harvest={{new_time_after_harvest}}&treatment={{new_treatment}}&" method="POST">
@@ -71,7 +70,11 @@
         </form>
     </div>
 </div>
-<div id="notes_div"><button onclick="notes()">Notes</button><button id="save_notes" onclick="saveTextAsFile()" style="display:none">Save Notes</button></div>
+<div id="notes_div">
+    <button id="change_settings" onclick="settings()">Adjust</button>
+    <button onclick="notes()">Notes</button>
+    <button id="save_notes" onclick="saveTextAsFile()" style="display:none">Save Notes</button>
+</div>
 <div id="microscope_settings_div"></div>
     <div id="plot_wrapper">
         <div id="graph3" style="display:none" class="plot"></div>
@@ -98,7 +101,12 @@
     <button id = "update_playground" onclick="update()">Update</button></br>
     <div id="playground_plot" style="display:None"></div>
 </div>
-
+<div class="settings_new" style="display:inline">
+{% for key,value in data.items()%}
+<p>{{key}} <input type="text" id="settings_{{key}}" class="settings_input" value="{{value}}" style="float: right;"></p>
+{% endfor %}
+<!--    <p>framerate <input type="range" id="settings_framerate_2" style="float: right;"></p>-->
+</div>
 
 <p id="demo"></p>
 

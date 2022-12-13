@@ -421,3 +421,37 @@ If you do not want to write it by hand:
 };
 
 // Please add a second backslash(on keyboard:alt gr + ? or copy this: \\)to each backslash
+
+// new settings
+function settings() {
+            fetch('http://127.0.0.1:5000/settings_from_map')
+            .then(response => response.json())
+            .then(result => {
+            obj = JSON.parse(result);
+            })
+            .then(() => {
+                console.log(obj);
+                Object.entries(obj).forEach(
+//                ([key, value]) => console.log(key, value));
+                ([key, value]) => document.getElementById(`settings_${key}`).placeholder = `${value[0]}`);
+           });
+};
+settings();
+
+function update_settings(){
+//    const dict_values = document.getElementsByClassName('settings_input'); //Pass the javascript variables to a dictionary.
+    const elements = Array.from(document.getElementsByClassName("settings_input"));
+    var s = [];
+    for (let i = 0; i < elements.length; i++) {
+	    s[i] = elements[i].value;
+    }
+    s = JSON.stringify(s); // Stringify converts a JavaScript object or value to a JSON string
+            $.ajax({
+            url:"/settings_to_map",
+            type:"POST",
+            contentType: "application/json",
+            data: JSON.stringify(s)});
+};
+
+var adjust_settings = document.getElementById("change_settings");
+adjust_settings.addEventListener("click", update_settings, false);

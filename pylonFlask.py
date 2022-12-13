@@ -28,6 +28,15 @@ columns = {'timestamp', 'frame', 'x', 'y', 'w', 'h', 'p', 'angle', 'long_axis', 
            'stress', 'strain', 'area', 'pressure', 'vel_fit_error', 'vel', 'vel_grad', 'eta', 'eta0', 'delta',
            'tau', 'omega', 'Gp1', 'Gp2', 'k', 'alpha'}
 
+data = {}
+variables = ['framerate', 'duration', 'pressure', 'aperture', 'imaging_position', 'bioink', 'room_temperature',
+             'cell_type', 'cell_passage_nr', 'time_after_harvest', 'treatment']
+for v in variables:
+    var = smap.__getattr__(v)
+    if isinstance(var, (bytes, bytearray)):
+        var = var.decode('UTF-8')
+    data[f'{v}'] = str(var)
+
 # init of memmap using xml file containg the structure of the mmap file
 image_buffer = ImageBuffer(output_mmap)
 def gen(camera,quality=95):
@@ -55,56 +64,8 @@ def gen(camera,quality=95):
 @app.route('/', methods=['POST', 'GET'])
 @app.route('/index', methods=['POST', 'GET'])
 def index():
-    data = {}
-    variables = ["framerate", "duration", "pressure", "aperture", "imaging_position", "bioink", "room_temperature",
-                 "cell_type", "cell_passage_nr", "time_after_harvest", "treatment"]
-    if request.method == 'POST':
+        return render_template('index.html',data=data, columns=columns)
 
-        for v in variables:
-            data[v] = request.form[v]
-        print(data)
-
-
-        try:
-            for k in data:
-                smap.__setattr__(k,data[k])
-
-            redirect_str = "/index?"
-            for k in data:
-                redirect_str += f"{k}={data[k]}&"
-            return redirect(redirect_str)
-            #return redirect(f"/index?framerate={new_framerate}&duration={new_duration}&pressure={new_pressure}&aperture={new_aperture}&imaging_position={new_imaging_position}&bioink={new_bioink}&room_temperature={new_room_temperature}&cell_type={new_cell_type}&cell_passage_nr={new_cell_passage_nr}&time_after_harvest={new_time_after_harvest}&treatment={new_treatment}")
-        except:
-            return 'There was an issue updating the framerate'
-
-    else:
-
-
-        for v in variables:
-            var = request.args.get(v)
-            #print(var, file=sys.stderr)
-            if var == None:
-                var = smap.__getattr__(v)
-                if isinstance(var, (bytes, bytearray)):
-                    var = var.decode('UTF-8')
-
-            data[v] = var
-        print('data',data,file=sys.stderr)
-
-        #df = pd.DataFrame({
-        #    'Fruit': ['Apples', 'Oranges', 'Bananas', 'Apples', 'Oranges',
-        #              'Bananas'],
-        #    'Amount': [4, 1, 2, 2, 4, 5],
-        #    'City': ['SF', 'SF', 'SF', 'Montreal', 'Montreal', 'Montreal']
-        #})
-        #fig = px.bar(df, x='Fruit', y='Amount', color='City',
-        #             barmode='group')
-        #graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-
-        return render_template('index.html',data=data, columns=columns)#,graphJSON = graphJSON)
-
-
-#https://flask.palletsprojects.com/en/2.0.x/patterns/streaming/
 @app.route('/video_feed')
 def video_feed():
     return Response(gen(image_buffer),mimetype='multipart/x-mixed-replace; boundary=frame')
@@ -183,6 +144,39 @@ def save_path():
     # print(smap.save_path.decode('UTF-8'))
     return ""
 
+@app.route("/settings_to_map", methods=['POST'])
+def to_map():
+    output = request.get_json() # this is the output that was stored in the JSON within the browser
+    result = json.loads(output) # this converts the json output to a python dictionary
+    data = {}
+    variables = ['framerate', 'duration', 'pressure', 'aperture', 'imaging_position', 'bioink', 'room_temperature',
+                     'cell_type', 'cell_passage_nr', 'time_after_harvest', 'treatment']
+    for index, item in enumerate(result):
+        var = item
+        name = variables[index]
+        data[f'{name}'] = str(var)
+    try:
+        for k in data:
+            smap.__setattr__(k, data[k])
+    except:
+        return 'There was an issue updating the settings'
+    # print(smap.save_path.decode('UTF-8'))
+    return ""
+
+@app.route("/settings_from_map")
+def from_map():
+    data = {}
+    variables = ['framerate', 'duration', 'pressure', 'aperture', 'imaging_position', 'bioink', 'room_temperature',
+                     'cell_type', 'cell_passage_nr', 'time_after_harvest', 'treatment']
+    for v in variables:
+        var = smap.__getattr__(v)
+        if isinstance(var, (bytes, bytearray)):
+            var = var.decode('UTF-8')
+        data[f'{v}'] = str(var)
+    data = pd.DataFrame(data, columns=['framerate', 'duration', 'pressure', 'aperture', 'imaging_position', 'bioink', 'room_temperature',
+                     'cell_type', 'cell_passage_nr', 'time_after_harvest', 'treatment'], index=[0])
+    data = data.to_json()
+    return jsonify(data)
 
 #not working; pause button
 # @app.route('/is_decoded/')
