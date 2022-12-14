@@ -79,13 +79,11 @@
   .plot {
     width: 350px;
     height: 350px;
-    border: 1px solid red;
   }
 
     .plot_large {
     width: 700px;
     height: 350px;
-    border: 1px solid red;
   }
 
   .btn-group button {
@@ -157,7 +155,7 @@
     float: right;
     position: absolute;
     top: 0px;
-    right: 25px;
+    right: 275px;
     margin-left: 10px;
     height:25px;
     width: 25px;
@@ -170,7 +168,7 @@
     float: right;
     position: absolute;
     top: 0px;
-    right: 50px;
+    right: 220px;
     margin-left: 10px;
     height:25px;
     width: 25px;
@@ -183,7 +181,7 @@
     float: right;
     position: absolute;
     top: 0px;
-    right: 75px;
+    right: 130px;
     margin-left: 10px;
     height:25px;
     width: 25px;
@@ -196,7 +194,7 @@
     float: right;
     position: absolute;
     top: 0px;
-    right: 100px;
+    right: 65px;
     margin-left: 10px;
     height:25px;
     width: 25px;
@@ -229,7 +227,6 @@
     width: 1000px;
     height: 270px;
     display: none;
-    border: 1px solid black;
   }
 
 #playground_plot{
@@ -238,7 +235,6 @@
     bottom:1px;
     width: 500px;
     height: 270px;
-    border: 1px solid red;
 }
 
 .settings_new{

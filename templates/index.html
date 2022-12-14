@@ -16,10 +16,10 @@
       name="pz"
     ></script>
 <div id="status" class="status">
-    <i id="detect_light" class="fa fa-circle"></i>
-    <i id="mechanical_light" class="fa fa-circle"></i>
-    <i id="aqc_light" class="fa fa-circle"></i>
-    <i id="flask_light" class="fa fa-circle"></i>
+    <i id="detect_light" class="fa fa-circle">detect</i>
+    <i id="mechanical_light" class="fa fa-circle">mechanics</i>
+    <i id="aqc_light" class="fa fa-circle">camera</i>
+    <i id="flask_light" class="fa fa-circle">website</i>
     <i  class="fa fa-question"></i>
     <input type="button" class="fa fa-question" onclick="(function(){alert('For help ask Johannes Bartl or Sebastian Bohle');return false;
     })();return false;" style="color:grey; opacity: 0.2"
@@ -54,22 +54,10 @@
     <button id = "plot">Plot</button>
 <!--    <button class="w3-button w3-green" onclick="move()">Click Me</button>-->
 </div>
-  <div id ="progress_bar" class="w3-light-grey" style="width:875px">
+  <div id ="progress_bar" class="w3-light-grey">
     <div id="myBar" class="w3-green" style="height:24px;width:0%"></div>
   </div>
   <br>
-<!--<button class="collapsible">Show/Hide Settings</button>-->
-<div id="settings" class="framerate" style="display:none">
-    <h2 style="text-align: center">Settings</h2>
-    <div class="form">
-        <form action="/index?framerate={{new_framerate}}&duration={{new_duration}}&pressure={{new_pressure}}&aperture={{new_aperture}}&imaging_position={{new_imaging_position}}&bioink={{new_bioink}}&room_temperature={{new_room_temperature}}&cell_type={{new_cell_type}}&cell_passage_nr={{new_cell_passage_nr}}&time_after_harvest={{new_time_after_harvest}}&treatment={{new_treatment}}&" method="POST">
-            {% for key,value in data.items()%}
-            <p>{{key}} <input type="text" class="settings" name="{{key}}" id="{{key}}" value="{{value}}"></p>
-            {% endfor %}
-            <button type="submit" value="Change settings">Change settings</button>
-        </form>
-    </div>
-</div>
 <div id="notes_div">
     <button id="change_settings" onclick="settings()">Adjust</button>
     <button onclick="notes()">Notes</button>

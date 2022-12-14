@@ -92,6 +92,8 @@ function gain(){
                             document.getElementById("flask_light").style.color = "grey";
                         };
         })
+        var right_progress_bar = document.getElementById('pause').getBoundingClientRect().right; //style="width:875px"
+        document.getElementById("progress_bar").style.width = right_progress_bar - 10 + "px";
     }, 3000);
 };
 
@@ -128,6 +130,7 @@ function clear_traces(trace) {
     Plotly.deleteTraces('graph4', 0);
     Plotly.deleteTraces('graph4', 1);
     Plotly.deleteTraces('graph5', 0);
+    Plotly.newPlot('playground_plot', 0);
 };
 
 // function to transform json object to javascript array
