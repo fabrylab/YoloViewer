@@ -1,4 +1,4 @@
-from flask import Flask,render_template, Response, request,redirect, jsonify
+from flask import Flask,render_template, Response, request,redirect, jsonify, send_file
 import time
 import numpy as np
 from PIL import Image
@@ -184,6 +184,10 @@ def from_map():
 #     camera = image_buffer
 #     return jsonify({'is_decoded': camera.is_decoded})
 
+@app.route('/picture')
+def picture():
+    # return Response(gen(image_buffer),mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response("/static/Test.png", mimetype='image/png')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, threaded=True)

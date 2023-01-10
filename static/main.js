@@ -20,10 +20,13 @@ dummy.addEventListener("click", change_dummy, false);
 function change_dummy(){
    if (document.getElementById("Dummy").style.display === "none"){
         document.getElementById("Dummy").style.display = "inline";
-        $('#dummy').find("i").toggleClass("fa-play fa-stop");}
+        $('#dummy').find("i").toggleClass("fa-play fa-stop");
+        $('#pause').find("i").toggleClass("fa-play fa-pause");
+        }
    else {
         document.getElementById("Dummy").style.display = "none";
         $('#dummy').find("i").toggleClass("fa-stop fa-play");
+        $('#pause').find("i").toggleClass("fa-pause fa-play");
    }
 };
 
@@ -241,26 +244,26 @@ var pause_button = document.getElementById("pause");
 var swap_pause_status = "on";
 //pause_button.addEventListener("click", pauseVid, false);
 pause_button.addEventListener("click", swap_pause, false);
-//
-//function playVid() {
-//     vid.play();
-//};
-//
-//function pauseVid() {
-//    vid.pause();
-//};
-//
+if (vid.style.display="none"){
+    $('#pause').find("i").toggleClass("fa-pause fa-play");
+};
+
 function swap_pause() {
 //    document.getElementById("pause").innerHTML = "Paragraph changed!";
+
     if (swap_pause_status === "on"){
-        $('#pause').find("i").toggleClass("fa-pause fa-play");
+//        $('#pause').find("i").toggleClass("fa-pause fa-play");
         swap_pause_status = "off";
-//        clearInterval(myVar);
-//        alert(console.log(myVar));
+        change_dummy();
+        pause();
+        document.getElementById("Dummy").src ="/picture";
+        document.getElementById("Dummy").style.display = "inline";
     }
     else if (swap_pause_status === "off"){
-        $('#pause').find("i").toggleClass("fa-play fa-pause");
+//        $('#pause').find("i").toggleClass("fa-play fa-pause");
         swap_pause_status = "on";
+        change_dummy();
+        document.getElementById("Dummy").src ="/video_feed";
     }
 };
 
@@ -458,3 +461,9 @@ function update_settings(){
 
 var adjust_settings = document.getElementById("change_settings");
 adjust_settings.addEventListener("click", update_settings, false);
+
+//pause function sets video_feed to not display and gets newest image to display instead
+function pause(){
+    console.log("working");
+//    document.getElementById("Dummy").src = "{{ url_for('picture') }}";
+};
