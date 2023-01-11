@@ -186,8 +186,21 @@ def from_map():
 
 @app.route('/picture')
 def picture():
-    # return Response(gen(image_buffer),mimetype='multipart/x-mixed-replace; boundary=frame')
-    return Response("/static/Test.png", mimetype='image/png')
+    def single():
+        camera = image_buffer
+        frame = camera.get_frame()
+        if frame is None:
+            time.sleep(0.1)
+        else:
+            frame = Image.fromarray(frame.squeeze(), 'L')
+            buffered = BytesIO()
+            frame.save(buffered, format='JPEG', quality=95)
+            frame = np.array(buffered.getvalue()).tobytes()
+        # yield (b'--frame\r\n'
+        #        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+        return frame
+    return Response(single(), mimetype='image/JPEG')
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, threaded=True)

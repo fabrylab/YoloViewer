@@ -18,16 +18,20 @@ var dummy = document.querySelector("#dummy");
 dummy.addEventListener("click", change_dummy, false);
 
 function change_dummy(){
+    document.getElementById("Dummy").src ="/video_feed";
    if (document.getElementById("Dummy").style.display === "none"){
         document.getElementById("Dummy").style.display = "inline";
         $('#dummy').find("i").toggleClass("fa-play fa-stop");
         $('#pause').find("i").toggleClass("fa-play fa-pause");
         }
-   else {
+   else if (document.getElementById("Dummy").style.display === "inline"){
         document.getElementById("Dummy").style.display = "none";
         $('#dummy').find("i").toggleClass("fa-stop fa-play");
         $('#pause').find("i").toggleClass("fa-pause fa-play");
-   }
+        }
+   else {
+       console.log("ERROR");
+    }
 };
 
 
@@ -238,7 +242,7 @@ function new_recieve() {
        });
 };
 
-// TODO: get this pause button working -> pause gen(ImageBuffer) in flask
+//pause function sets video_feed to not display and gets newest image to display instead
 var vid = document.getElementById("Dummy");
 var pause_button = document.getElementById("pause");
 var swap_pause_status = "on";
@@ -249,21 +253,27 @@ if (vid.style.display="none"){
 };
 
 function swap_pause() {
-//    document.getElementById("pause").innerHTML = "Paragraph changed!";
+    if (document.getElementById("Dummy").style.display === "none"){
+        document.getElementById("Dummy").style.display = "inline";
+        $('#dummy').find("i").toggleClass("fa-play fa-stop");
+    }
+    //
+    // else {
+    //    console.log("PAUSED");
+    // }
 
     if (swap_pause_status === "on"){
-//        $('#pause').find("i").toggleClass("fa-pause fa-play");
         swap_pause_status = "off";
-        change_dummy();
-        pause();
+        // document.getElementById("Dummy").src ="\"{{ url_for('static', filename = f'{images/Test.png}') }}\"";
         document.getElementById("Dummy").src ="/picture";
-        document.getElementById("Dummy").style.display = "inline";
+        document.getElementById("dummy").removeEventListener('click', change_dummy);
+        $('#pause').find("i").toggleClass("fa-pause ");
     }
     else if (swap_pause_status === "off"){
-//        $('#pause').find("i").toggleClass("fa-play fa-pause");
         swap_pause_status = "on";
-        change_dummy();
         document.getElementById("Dummy").src ="/video_feed";
+        $('#pause').find("i").toggleClass("fa-play fa-pause");
+        dummy.addEventListener("click", change_dummy, false);
     }
 };
 
@@ -461,9 +471,3 @@ function update_settings(){
 
 var adjust_settings = document.getElementById("change_settings");
 adjust_settings.addEventListener("click", update_settings, false);
-
-//pause function sets video_feed to not display and gets newest image to display instead
-function pause(){
-    console.log("working");
-//    document.getElementById("Dummy").src = "{{ url_for('picture') }}";
-};
