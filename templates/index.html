@@ -37,7 +37,7 @@
         <g>
           <foreignObject x="0" y="0" width="500" height="400">
 <!--            <video class="live" autoplay="true" id="videoElement" style="display:none"></video>-->
-            <img id="Dummy" src="{{ url_for('picture') }}" width="50%" style="display:none" alt="Error with live display"></img>
+            <img id="Dummy" src="" width="50%" style="display:none" alt="Error with live display"></img>
           </foreignObject>
         </g>
       </g>
@@ -96,8 +96,10 @@
 <!--    <p>framerate <input type="range" id="settings_framerate_2" style="float: right;"></p>-->
 </div>
 <div id="overlay_picture_div" style="display:inline" class="overlay_flex_container">
-<!--    <img src="/static/images/test.png" class="overlay_flex_item">-->
-    <img src="{{ url_for('background1') }}" class="overlay_flex_item">
+    <img id="overlay1" src="" class="overlay_flex_item">
+    <img id="overlay2" src="" class="overlay_flex_item">
+    <img id="overlay3" src="" class="overlay_flex_item">
+<!--    <img src="{{ url_for('background1') }}" class="overlay_flex_item">-->
 </div>
 
 <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>

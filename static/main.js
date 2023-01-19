@@ -468,34 +468,47 @@ adjust_settings.addEventListener("click", update_settings, false);
 var add_overlay = document.getElementById("overlay");
 add_overlay.addEventListener("click", get_overlay, false);
 
+let intervalId2;
 function get_overlay(){
 //            $.ajax({
 //            url:"/overlay",
 //            context: document.body});
 
-            fetch('http://127.0.0.1:5000/background1')
-            .then(response => response.json())
-            .then(result => {
-            obj = JSON.parse(result);
-            })
-            .then(() => {
-                console.log(obj);
-                document.getElementById("overlay_picture_div").style.display="inline";
-           });
+//            fetch('http://127.0.0.1:5000/background1')
+//            .then(response => response.json())
+//            .then(result => {
+//            obj = JSON.parse(result);
+//            })
+//            .then(() => {
+//                console.log(obj);
+//                document.getElementById("overlay_picture_div").style.display="inline";
+//           });
+//           $("#test").attr("src", "/background1");
+    intervalId2 = setInterval(function(){
+        $("#overlay1").attr("src", "/background1?time="+new Date().getTime());
+        $("#overlay2").attr("src", "/background2?time="+new Date().getTime());
+        $("#overlay3").attr("src", "/background3?time="+new Date().getTime());
+    }, 3000);
 };
 
 function single_picture(){
-        $.ajax({
-            url:"/picture",
-            context: document.body});
+        $("#Dummy").attr("src", "/picture");
 };
 
 let intervalId;
 
 function get_limited(){
-    intervalId = setInterval(single_picture, 1000/60);
+//    intervalId = setInterval(single_picture, 1000/60);
+    update_picture();
 };
 
 function stop_interval(){
     clearInterval(intervalId);
 };
+
+
+function update_picture(){
+    intervalId = setInterval(function(){
+        $("#Dummy").attr("src", "/picture?time="+new Date().getTime());
+    }, 1000/10);
+}

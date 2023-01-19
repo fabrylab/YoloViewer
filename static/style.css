@@ -246,11 +246,16 @@
 }
 
 .overlay_flex_container{
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
+    position: absolute;
 }
 
 .overlay_flex_item{
-    flex: 0;
+    flex: 1;
+    flex-grow:1;
+    max-width:20%;
+    max-height:20%;
 }

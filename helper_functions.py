@@ -102,11 +102,19 @@ class ImageBuffer():
         image, frameInfo = self.getNewestImage()
         return frameInfo
 
-    def get_specific(self, timestamp=0):
+    def get_specific(self, timestamp):
         # get all timestamps
-        timestamps = [slot.time_unix for slot in self.mmap.rbf]
+        timestamps = [slot.time_unix*1e6 for slot in self.mmap.rbf]
+        timestamps_us = [slot.time_us for slot in self.mmap.rbf]
+        for i in range(len(timestamps)):
+            timestamps[i] = timestamps[i] + timestamps_us[i]
+        # timestamps = [sum(slot.time_unix*1e6, slot.time_us) for slot in self.mmap.rbf] ; not working
+        # timestamps = [slot.time_unix for slot in self.mmap.rbf] ; old one for preliminary artificial one
+        # print(timestamps)
         # generate existing timestamps, preliminary
-        timestamp = timestamps[2]
+        # timestamp = timestamps[2]
+        #test
+        # timestamp = timestamp
         # compare timestamps, return none if timestamp is not the same
         if timestamp not in timestamps:
             return None, {}

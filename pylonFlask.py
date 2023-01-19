@@ -1,7 +1,7 @@
 from flask import Flask,render_template, Response, request, jsonify, send_file
 import time
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image
 from io import BytesIO
 from helper_functions import ImageBuffer
 import configparser
@@ -13,6 +13,7 @@ import pandas as pd
 import json
 from bg_task_checker import check_tasks
 import cv2
+import matplotlib.pyplot as plt
 
 app = Flask(__name__)
 #read config
@@ -181,12 +182,13 @@ def from_map():
 @app.route('/picture')
 def picture():
     def new_single():
+        frame = None
         if camera_thread.image_buffer:
             frame = camera_thread.image_buffer.pop(0)
         return frame
     return Response(new_single(), mimetype='image/JPEG')
 
-#yolo output overlay; working -> json data is on webpage
+#not used atm
 @app.route('/overlay')
 def overlay():
     sql_query = fetch_last_3_ellipses(db_file)
@@ -200,44 +202,78 @@ def background(number, quality= 95):
     sql_query = fetch_last_3_ellipses(db_file)
     columns = ['timestamp', 'frame', 'x', 'y', 'w', 'h', 'p']
     df = pd.DataFrame(sql_query, columns=columns)
-    # timestamp_example = df.timestamp[0]
-    # print(timestamp_example)
     camera = image_buffer
     frame = camera.get_specific(timestamp=df.timestamp[number])
     # CARE currently artificial timestamp, not the correct one
-    frame = Image.fromarray(frame.squeeze(), 'L')
+    # frame = Image.fromarray(frame.squeeze(), 'L')
     # # PIL image here
     # buffered = BytesIO()
     # frame.save(buffered, format='JPEG', quality=quality)
     # frame = np.array(buffered.getvalue()).tobytes()
     # return Response(frame, mimetype='multipart/form-data, boundary=AaB03x')
-    print(type(frame))
     return frame, df
 
 # not working so far
-def overlay_ellipse(frame, df):
-    quality = 95
-    # Load the image
-    img = cv2.imread("static/images/Test.png")
-    # Get the ellipse parameters
-    center = (100, 100)
-    axes = (50, 30)
-    angle = 45
-    # Overlay the ellipse on the image
-    cv2.ellipse(img, center, axes, angle, 0, 360, (255, 0, 0), 2)
-    img = Image.fromarray(img)
-    print(type(img))
-    return img
+def overlay_ellipse(frame, df, number):
+    # ['timestamp', 'frame', 'x', 'y', 'w', 'h', 'p']
+    image = np.array(frame)
+    # Ellipse properties
+    # center_x, center_y = 250, 350
+    center_x, center_y = df.x[number], df.y[number]
+    a, b = df.w[number], df.h[number]
+    theta = np.deg2rad(df.p[number]) #TODO see which one is correct
+    #theta = df.p[number]
+    # Create x and y coordinates for grid of points
+    x_samples = np.linspace(0, image.shape[1] - 1, image.shape[1])
+    y_samples = np.linspace(0, image.shape[0] - 1, image.shape[0])
+    x, y = np.meshgrid(x_samples, y_samples)
+    thickness = 3
+    # Create binary mask of ellipse using equation of an ellipse
+    mask_outter = ((np.cos(theta) * (x - center_x) + np.sin(theta) * (y - center_y)) ** 2) / a ** 2 + (
+                (np.sin(theta) * (x - center_x) - np.cos(theta) * (y - center_y)) ** 2) / b ** 2 <= 1
+
+    mask_inner = ((np.cos(theta) * (x - center_x) + np.sin(theta) * (y - center_y)) ** 2) / (a - thickness) ** 2 + (
+                (np.sin(theta) * (x - center_x) - np.cos(theta) * (y - center_y)) ** 2) / (b - thickness) ** 2 >= 1
+    mask = np.logical_and(mask_outter, mask_inner)
+    # Create a copy of the image
+    overlay = image.copy()
+    # Set all pixels in the overlay outside the mask to 0 (black)
+    overlay[~mask] = 0
+    # Use alpha blending to overlay the image with the mask
+    alpha = 0.5
+    overlay = cv2.addWeighted(overlay, alpha, image, 1 - alpha, 0)
+    return overlay
 
 @app.route('/background1')
 def background1():
-    frame, df = background(0)
-    # print(frame, df)
-    frame = overlay_ellipse(frame, df)
-    # return Response(frame.getvalue(), content_type='image/jpeg')
-    # return Response(frame, mimetype='image/JPEG')
-    # return frame
-    return send_file(frame, mimetype='image/JPEG')
+    frame, df = background(0) # working
+    frame = overlay_ellipse(frame, df, 0)
+    img = Image.fromarray(frame)
+    img_bytes = BytesIO()
+    img.save(img_bytes, format='JPEG')
+    img_bytes.seek(0) #working
+    return Response(img_bytes, mimetype='image/JPEG')
+
+@app.route('/background2')
+def background2():
+    frame, df = background(1) # working
+    frame = overlay_ellipse(frame, df, 1)
+    img = Image.fromarray(frame)
+    img_bytes = BytesIO()
+    img.save(img_bytes, format='JPEG')
+    img_bytes.seek(0) #working
+    return Response(img_bytes, mimetype='image/JPEG')
+
+@app.route('/background3')
+def background3():
+    frame, df = background(2) # working
+    frame = overlay_ellipse(frame, df, 2)
+    img = Image.fromarray(frame)
+    img_bytes = BytesIO()
+    img.save(img_bytes, format='JPEG')
+    img_bytes.seek(0) #working
+    return Response(img_bytes, mimetype='image/JPEG')
+
 
 
 # @app.route('/background2')
@@ -274,4 +310,4 @@ camera_thread = CameraThread()
 camera_thread.start()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, threaded=True)
+    app.run(debug=True, use_debugger=False, use_reloader=False)
