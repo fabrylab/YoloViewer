@@ -98,6 +98,32 @@ class ImageBuffer():
 
         return image
 
+    def get_info(self, scaling=1, offX_orig=0, offY_orig=0, width_orig=None, height_orig=None, return16bit=False):
+        image, frameInfo = self.getNewestImage()
+        return frameInfo
+
+    def get_specific(self, timestamp=0):
+        # get all timestamps
+        timestamps = [slot.time_unix for slot in self.mmap.rbf]
+        # generate existing timestamps, preliminary
+        timestamp = timestamps[2]
+        # compare timestamps, return none if timestamp is not the same
+        if timestamp not in timestamps:
+            return None, {}
+        idx=timestamps.index(timestamp)
+        #return image for correct timestamp
+        image = self.mmap.rbf[idx].image.squeeze()
+        meta_data = {
+            'timestamp_us': int(
+                str(self.mmap.rbf[idx].time_unix) + str(self.mmap.rbf[idx].time_us)),
+        }
+        image = image.astype(np.uint8)
+        # print(self.mmap.rbf[idx].time_unix)
+        # return image, meta_data
+        return image
+
+        # return timestamps
+
 def write_config(config_path,smap):
     config = configparser.ConfigParser()
     config['Default'] = {'Version':1}

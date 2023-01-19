@@ -114,3 +114,18 @@ def fetch_larger_t0_json(db_file, t0):
 
     except sqlite3.Error as e:
         print(e)
+
+#working
+def fetch_last_3_ellipses(db_file):
+    try:
+        conn = connect(db_file)
+        c = conn.cursor()
+        # c.execute("SELECT json_object(*) FROM data WHERE timestamp > (?);",(t0,))
+        c.execute("SELECT timestamp,frame,x,y,w,h,p FROM data ORDER BY timestamp DESC LIMIT 3;")
+        items = c.fetchall()
+        conn.commit()
+        conn.close()
+        return items
+
+    except sqlite3.Error as e:
+        print(e)

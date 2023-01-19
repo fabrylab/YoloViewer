@@ -18,14 +18,16 @@ var dummy = document.querySelector("#dummy");
 dummy.addEventListener("click", change_dummy, false);
 
 function change_dummy(){
-    document.getElementById("Dummy").src ="/video_feed";
+//    document.getElementById("Dummy").src ="/video_feed";
    if (document.getElementById("Dummy").style.display === "none"){
         document.getElementById("Dummy").style.display = "inline";
+        get_limited();
         $('#dummy').find("i").toggleClass("fa-play fa-stop");
         $('#pause').find("i").toggleClass("fa-play fa-pause");
         }
    else if (document.getElementById("Dummy").style.display === "inline"){
         document.getElementById("Dummy").style.display = "none";
+        stop_interval();
         $('#dummy').find("i").toggleClass("fa-stop fa-play");
         $('#pause').find("i").toggleClass("fa-pause fa-play");
         }
@@ -42,7 +44,7 @@ function gain(){
         .then(result => {
         camera_output = JSON.parse(result);
         })
-        .then(() => {   console.log(camera_output);
+        .then(() => {
                         var gain = json2array(camera_output.gain);
                         var framerate = json2array(camera_output.framerate);
                         var duration = json2array(camera_output.duration);
@@ -56,7 +58,7 @@ function gain(){
         .then(result => {
         camera_output = JSON.parse(result);
         })
-        .then(() => {   console.log(camera_output);
+        .then(() => {
                         var gain = json2array(camera_output.gain);
                         var framerate = json2array(camera_output.framerate);
                         var duration = json2array(camera_output.duration);
@@ -69,7 +71,7 @@ function gain(){
         .then(result => {
         tasks = JSON.parse(result);
         })
-        .then(() => {   console.log(tasks);
+        .then(() => {
                         var streamAcquisitionDummy2 = json2array(tasks.streamAcquisitionDummy2); //second from left
                         var mechanical = json2array(tasks.mechanical); //second from right
                         var detect = json2array(tasks.detect); //first from right
@@ -253,27 +255,18 @@ if (vid.style.display="none"){
 };
 
 function swap_pause() {
-    if (document.getElementById("Dummy").style.display === "none"){
-        document.getElementById("Dummy").style.display = "inline";
-        $('#dummy').find("i").toggleClass("fa-play fa-stop");
-    }
-    //
-    // else {
-    //    console.log("PAUSED");
-    // }
-
     if (swap_pause_status === "on"){
         swap_pause_status = "off";
-        // document.getElementById("Dummy").src ="\"{{ url_for('static', filename = f'{images/Test.png}') }}\"";
-        document.getElementById("Dummy").src ="/picture";
-        document.getElementById("dummy").removeEventListener('click', change_dummy);
+        stop_interval();
+        single_picture();
+//        document.getElementById("dummy").removeEventListener('click', change_dummy);
         $('#pause').find("i").toggleClass("fa-pause ");
     }
     else if (swap_pause_status === "off"){
         swap_pause_status = "on";
-        document.getElementById("Dummy").src ="/video_feed";
+        get_limited();
         $('#pause').find("i").toggleClass("fa-play fa-pause");
-        dummy.addEventListener("click", change_dummy, false);
+//        dummy.addEventListener("click", change_dummy, false);
     }
 };
 
@@ -446,7 +439,7 @@ function settings() {
             obj = JSON.parse(result);
             })
             .then(() => {
-                console.log(obj);
+//                console.log(obj);
                 Object.entries(obj).forEach(
 //                ([key, value]) => console.log(key, value));
                 ([key, value]) => document.getElementById(`settings_${key}`).placeholder = `${value[0]}`);
@@ -471,3 +464,38 @@ function update_settings(){
 
 var adjust_settings = document.getElementById("change_settings");
 adjust_settings.addEventListener("click", update_settings, false);
+
+var add_overlay = document.getElementById("overlay");
+add_overlay.addEventListener("click", get_overlay, false);
+
+function get_overlay(){
+//            $.ajax({
+//            url:"/overlay",
+//            context: document.body});
+
+            fetch('http://127.0.0.1:5000/background1')
+            .then(response => response.json())
+            .then(result => {
+            obj = JSON.parse(result);
+            })
+            .then(() => {
+                console.log(obj);
+                document.getElementById("overlay_picture_div").style.display="inline";
+           });
+};
+
+function single_picture(){
+        $.ajax({
+            url:"/picture",
+            context: document.body});
+};
+
+let intervalId;
+
+function get_limited(){
+    intervalId = setInterval(single_picture, 1000/60);
+};
+
+function stop_interval(){
+    clearInterval(intervalId);
+};

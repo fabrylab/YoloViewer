@@ -244,3 +244,13 @@
 #change_settings{
     font-size: 12px;
 }
+
+.overlay_flex_container{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+.overlay_flex_item{
+    flex: 0;
+}

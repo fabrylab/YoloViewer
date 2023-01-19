@@ -37,7 +37,7 @@
         <g>
           <foreignObject x="0" y="0" width="500" height="400">
 <!--            <video class="live" autoplay="true" id="videoElement" style="display:none"></video>-->
-            <img id="Dummy" src="{{ url_for('video_feed') }}" width="50%" id="videoElement" style="display:none"label="dummy_stream" alt="Error with live display"</img>
+            <img id="Dummy" src="{{ url_for('picture') }}" width="50%" style="display:none" alt="Error with live display"></img>
           </foreignObject>
         </g>
       </g>
@@ -52,7 +52,7 @@
     <button id = "clear">Clear Plots</button>
     <button id = "pause"><i class="fa fa-pause"></i> Live</button>
     <button id = "plot">Plot</button>
-<!--    <button class="w3-button w3-green" onclick="move()">Click Me</button>-->
+    <button id = "overlay">overlay</button>
 </div>
   <div id ="progress_bar" class="w3-light-grey">
     <div id="myBar" class="w3-green" style="height:24px;width:0%"></div>
@@ -95,26 +95,28 @@
 {% endfor %}
 <!--    <p>framerate <input type="range" id="settings_framerate_2" style="float: right;"></p>-->
 </div>
-
-<p id="demo"></p>
+<div id="overlay_picture_div" style="display:inline" class="overlay_flex_container">
+<!--    <img src="/static/images/test.png" class="overlay_flex_item">-->
+    <img src="{{ url_for('background1') }}" class="overlay_flex_item">
+</div>
 
 <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
 <script type="text/javascript" src="static/main.js"></script>
-<script>
-    var coll = document.getElementsByClassName("collapsible");
-var i;
-for (i = 0; i < coll.length; i++) {
-  coll[i].addEventListener("click", function() {
-    this.classList.toggle("active");
-    var framerate = this.nextElementSibling;
-    if (framerate.style.display === "block") {
-      framerate.style.display = "none";
-    } else {
-      framerate.style.display = "block";
-      framerate.style.float = "right";
-    }
-  });
-}
-</script>
+<!--<script>-->
+<!--    var coll = document.getElementsByClassName("collapsible");-->
+<!--var i;-->
+<!--for (i = 0; i < coll.length; i++) {-->
+<!--  coll[i].addEventListener("click", function() {-->
+<!--    this.classList.toggle("active");-->
+<!--    var framerate = this.nextElementSibling;-->
+<!--    if (framerate.style.display === "block") {-->
+<!--      framerate.style.display = "none";-->
+<!--    } else {-->
+<!--      framerate.style.display = "block";-->
+<!--      framerate.style.float = "right";-->
+<!--    }-->
+<!--  });-->
+<!--}-->
+<!--</script>-->
 
 {% endblock %}

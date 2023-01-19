@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>YoloViewer</title>
+<link rel="stylesheet" href="static/style-1.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<!--<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">-->
+
+{% endblock %}
+
+{% block body %}
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"> </script>
+<script src="https://unpkg.com/panzoom@9.4.0/dist/panzoom.min.js" query="#scene" name="pz"></script>
+
+<div id="container">
+    <div id="header">
+        <div id="text_bar">
+            <p>YOLOVIEWER V.0.3</p>
+        </div>
+
+        <div id="status_bar">
+            <p id="status_detect" class="status_text" title="Detect">D</p>
+            <div id="status_light_detect" class="status_light"></div>
+
+            <p id="status_mechanical" class="status_text" title="Mechanical">M</p>
+            <div id="status_light_mechanical" class="status_light"></div>
+
+            <p id="status_acquisition" class="status_text" title="Aquisition">A</p>
+            <div id="status_light_acquisition" class="status_light"></div>
+
+            <p id="status_flask" class="status_text" title="Flask">F</p>
+            <div id="status_light_flask" class="status_light"></div>
+
+            <div class="status_text" title="For help ask Johannes Bartl or Sebastian Bohle">?</div>
+        </div>
+    </div>
+    <div id="content">
+        <div id="measurement">
+            <div id="cameras">
+                <div id="live_view">
+                    <svg version="1.1" id="svg_bright_field" class="center-block" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                        <g id="scene">
+                            <g><foreignObject x="0" y="0" width="720px" height="540px">
+                                <img id="bright_field" src="{{ url_for('video_feed') }}">
+                            </foreignObject></g>
+                        </g>
+                    </svg>
+                    <button id="button_switch_fullscreen">Fullscreen</button>
+                </div>
+            </div>
+            <div id="control_bar">
+                <button id="button_play_pause"><i class="fa fa-play"></i></button>
+                <button id="button_record"><i class="fa fa-circle"></i></button>
+                <div class="value_text">
+                    <p>Framerate</p>
+                    <input type="text" class="set_value" value="{{data.duration}}">
+                </div>
+                <div class="value_text">
+                    <p>Duration</p>
+                    <input type="text" class="set_value" value="{{data.framerate}}">
+                </div>
+                <div class="value_text">
+                    <p>Gain</p>
+                    <p>{{data.gain}}</p>
+                </div>
+                <div class="value_text">
+                    <p>Save Path</p>
+                    <input type="text" class="set_value" value="{{data.save_path}}">
+                </div>
+                <button id="button_clear_plot">Clear Plot</button>
+            </div>
+            <div id="experiment_parameter">
+                <div class="parameter">
+                    <div class="value_text">
+                    <p>Pressure</p>
+                    <input type="text" class="set_value" value="{{data.pressure}}">
+                    </div>
+                    <div class="value_text">
+                    <p>Image Position</p>
+                    <input type="text" class="set_value" value="{{data.imaging_position}}">
+                    </div>
+                    <div class="value_text">
+                    <p>Aperture</p>
+                    <input type="text" class="set_value" value="{{data.aperture}}">
+                    </div>
+                    <div class="value_text">
+                    <p>Objective</p>
+                    <input type="text" class="set_value" value="">
+                    </div>
+                    <div class="value_text">
+                    <p>Coupler</p>
+                    <input type="text" class="set_value" value="">
+                    </div>
+                    <div class="value_text">
+                    <p>NA</p>
+                    <input type="text" class="set_value" value="">
+                    </div>
+                </div>
+                <div class="parameter">
+                    <div class="value_text">
+                    <p>Bioink</p>
+                    <input type="text" class="set_value" value="{{data.bioink}}">
+                    </div>
+                    <div class="value_text">
+                    <p>Cell Type</p>
+                    <input type="text" class="set_value" value="{{data.cell_type}}">
+                    </div>
+                    <div class="value_text">
+                    <p>Cell Passage Number</p>
+                    <input type="text" class="set_value" value="{{data.cell_passage_nr}}">
+                    </div>
+                    <div class="value_text">
+                    <p>Time after harvest</p>
+                    <input type="text" class="set_value" value="{{data.time_after_harvest}}">
+                    </div>
+                    <div class="value_text">
+                    <p>Treatment</p>
+                    <input type="text" class="set_value" value="{{data.treatment}}">
+                    </div>
+                    <div class="value_text">
+                    <p>Temperature</p>
+                    <input type="text" class="set_value" value="{{data.room_temperature}}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="visualization">
+            <div id="plot_wrapper_top">
+                <div id="plot_vel_profile" class="plot"></div>
+                <div id="plot_stress_strain" class="plot_large"></div>
+            </div>
+            <div id="plot_wrapper_bottom">
+                <div id="plot_angle_rp" class="plot"></div>
+                <div id="plot_g_g" class="plot"></div>
+                <div id="plot_k_alpha" class="plot"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!--
+<div id="status" class="status">
+    <i id="detect_light" class="fa fa-circle">detect</i>
+    <i id="mechanical_light" class="fa fa-circle">mechanics</i>
+    <i id="aqc_light" class="fa fa-circle">camera</i>
+    <i id="flask_light" class="fa fa-circle">website</i>
+    <i  class="fa fa-question"></i>
+    <input type="button" class="fa fa-question" onclick="(function(){alert('For help ask Johannes Bartl or Sebastian Bohle');return false;
+    })();return false;" style="color:grey; opacity: 0.2"
+    </input>
+</div>
+
+    <h1>YoloViewer Version 0.31</h1>
+    <svg
+      version="1.1"
+      class="center-block"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      width="600"
+      height="400">
+      <g id="scene">
+        <g>
+          <foreignObject x="0" y="0" width="500" height="400">
+
+            <img id="Dummy" src="{{ url_for('video_feed') }}" width="50%" id="videoElement" style="display:none"label="dummy_stream"</img>
+          </foreignObject>
+        </g>
+      </g>
+    </svg>
+<div class="btn-group">
+    <button id= "dummy"><i class="fa fa-play"></i></button>
+    <button id = "record" value="Record"><i class="fa fa-circle"></i></button>
+    <button id = "show_duration"></button>
+    <button id = "show_framerate"></button>
+    <button id = "show_gain"></button>
+    <button id = "save" onclick="pop()">select Save-Path</button>
+    <button id = "clear">Clear Plots</button>
+    <button id = "pause"><i class="fa fa-pause"></i> Live</button>
+    <button id = "plot">Plot</button>
+</div>
+  <div id ="progress_bar" class="w3-light-grey">
+    <div id="myBar" class="w3-green" style="height:24px;width:0%"></div>
+  </div>
+  <br>
+<div id="notes_div">
+    <button id="change_settings" onclick="settings()">Adjust</button>
+    <button onclick="notes()">Notes</button>
+    <button id="save_notes" onclick="saveTextAsFile()" style="display:none">Save Notes</button>
+</div>
+<div id="microscope_settings_div"></div>
+    <div id="plot_wrapper">
+        <div id="graph3" style="display:none" class="plot"></div>
+        <div id="graph" style="display:none" class="plot_large"></div>
+            </div>
+<div id="plot_wrapper2" >
+        <div id="graph4" style="display:none" class="plot"></div>
+        <div id="graph2" style="display:none" class="plot"></div>
+        <div id="graph5" style="display:none" class="plot"></div>
+     </div>
+<div id="plot_wrapper3">
+    <select id="plot_selector_1" onchange="for_update()">
+        <option value="-1" selected="selected">Select x-axis</option>
+        {% for value in columns%}
+            <option {{key}}  name="select_{{key}}" id="select_{{key}}" value="{{value}}">{{value}}</option>
+        {% endfor %}
+    </select>
+    <select id="plot_selector_2" onchange="for_update()">
+        <option value="-1" selected="selected">Select y-axis</option>
+        {% for value in columns%}
+            <option {{key}}  name="select2_{{key}}" id="select2_{{key}}" value="{{value}}">{{value}}</option>
+        {% endfor %}
+    </select>
+    <button id = "update_playground" onclick="update()">Update</button></br>
+    <div id="playground_plot" style="display:None"></div>
+</div>
+<div class="settings_new" style="display:inline">
+{% for key,value in data.items()%}
+<p>{{key}} <input type="text" id="settings_{{key}}" class="settings_input" value="{{value}}" style="float: right;"></p>
+{% endfor %}
+</div>
+
+<p id="demo"></p>
+-->
+<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+<script type="text/javascript" src="static/main-1.js"></script>
+
+
+<script>
+    var coll = document.getElementsByClassName("collapsible");
+var i;
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var framerate = this.nextElementSibling;
+    if (framerate.style.display === "block") {
+      framerate.style.display = "none";
+    } else {
+      framerate.style.display = "block";
+      framerate.style.float = "right";
+    }
+  });
+}
+</script>
+
+{% endblock %}
