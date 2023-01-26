@@ -1,13 +1,25 @@
 
+const image = document.getElementById("bright_field");
+panzoom(image, {
+  maxZoom: 3,
+  minZoom: 1,
+
+});
+const image2 = document.getElementById("fluorescence");
+const panzoom1 = panzoom(image2, {
+    maxZoom: 3,
+    minZoom: 1,
+    bounds: { left: 0, right: 720, top: 0, bottom: 540 }
+});
+
+window.addEventListener("keydown", function(event) {
+  if (event.code === "KeyF") {
+    document.getElementById("experiment_parameter").style.backgroundColor = "green";
+    panzoom1.reset();
+  }
+});
 
 /* Plots */
-//first graph:velocity over position
-var data_pos_vel = [{
-    x: [6,4,3,1],
-    y: [1,2.5,2.7,3],
-    mode: 'markers',
-    type: 'scatter'
-}];
 var layout = {
     margin: {
         t: 40,
@@ -23,6 +35,7 @@ var layout = {
         linewidth: 1,
         mirror: true
     },
+    showlegend: false,
 
 };
 config = {
@@ -30,6 +43,24 @@ config = {
     displaylogo: false,
     responsive:true,
 }
+//first graph:velocity over position
+var data_pos_vel = [{
+    x: [6,4,3,1],
+    y: [1,2.5,2.7,3],
+    mode: 'markers',
+    type: 'scatter',
+    name: 'data',
+}];
+
+var data_fit_pos_vel = {
+    x: [6,4,3,1],
+    y: [1,2.5,2.7,3],
+    type: 'scatter',
+    mode: 'lines',
+    line: {color: 'black'},
+    name: 'fit',
+
+};
 
 var layout_pos_vel = {...layout};
 var layout_stress_strain = {...layout};
@@ -45,13 +76,14 @@ layout_pos_vel.annotations = [{
         text: "\u03B7\u2080: X.XX<br>\u03B4: X.XX<br>\u03C4: X.XX",
         showarrow: false,
   }],
-Plotly.newPlot('plot_vel_profile', data_pos_vel, layout_pos_vel, config)
-
+Plotly.newPlot('plot_vel_profile', data_pos_vel, layout_pos_vel, config);
+Plotly.addTraces('plot_vel_profile', data_fit_pos_vel);
+//Plotly.newPlot('plot_vel_profile', data_fit_pos_vel, layout_pos_vel,config);
 //second graph:strain over stress
 var data_scatter = [{
     mode: 'markers',
     marker: {
-        size: 10,
+        //size: 10,
         colorscale: 'Viridis'
     }
 }];
@@ -82,7 +114,9 @@ Plotly.newPlot('plot_angle_rp', data_angle_rp, layout_angle_rp, config);
 //fourth plot: g_g
 var layout_g_g = {...layout};
 layout_g_g.xaxis.title = "angular frequency";
-layout_g_g.yaxis.title = "G'/G''"
+layout_g_g.yaxis.title = "G'/G''";
+
+
 
 // create the first trace
 var g_prime = {
@@ -90,10 +124,11 @@ var g_prime = {
     y: [5, 2, 3, 4, 5],
     mode: 'markers',
     marker: {
-        color: 'orange',
-        size: 10
+        color: 'b',
+        //size: 10
     },
-    type: 'scatter'
+    type: 'scatter',
+    name: "G'"
 };
 
 // create the second trace
@@ -102,10 +137,11 @@ var g_double_prime = {
     y: [1, 4, 2, 3, 5],
     mode: 'markers',
     marker: {
-        color: 'blue',
-        size: 10
+        color: 'o',
+        //size: 10
     },
-    type: 'scatter'
+    type: 'scatter',
+    name: "G''"
 };
 
 // combine the two traces
@@ -113,8 +149,28 @@ var data_g_g = [g_prime, g_double_prime];
 
 Plotly.newPlot('plot_g_g', data_g_g, layout_g_g, config);
 
+//fivth and final plot: k vs alpha
 
-//Plotly.newPlot('plot_k_alpha', data1, layout, config );
+var data_k_alpha = data_scatter.slice();
+data_k_alpha[0].x = [5, 5, 5, 5, 5, 5, 5, 6, 7, 8, 9, 10, 11, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
+data_k_alpha[0].y = [6, 2, 3, 4, 5, 6, 7, 8, 12, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
+data_k_alpha[0].marker.color = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39];
+
+var layout_k_alpha = {...layout};
+layout_k_alpha.xaxis.title = "stiffness k [Pa]";
+layout_k_alpha.yaxis.title = "fluidity \u03B1"
+
+layout_k_alpha.annotations = [{
+        xref: 'paper',
+        yref: 'paper',
+        x: 0.8,
+        y: 0.8,
+        text: "k: X.XX<br>\u03B1: X.XX",
+        showarrow: false,
+  }],
+
+Plotly.newPlot('plot_k_alpha', data_k_alpha, layout_k_alpha, config);
+
 
 
 
