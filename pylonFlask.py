@@ -220,7 +220,7 @@ def overlay_ellipse(frame, df, number):
     # Ellipse properties
     # center_x, center_y = 250, 350
     center_x, center_y = df.x[number], df.y[number]
-    a, b = df.w[number], df.h[number]
+    a, b = df.w[number]/2, df.h[number]/2
     theta = np.deg2rad(df.p[number]) #TODO see which one is correct
     #theta = df.p[number]
     # Create x and y coordinates for grid of points
@@ -242,7 +242,15 @@ def overlay_ellipse(frame, df, number):
     # Use alpha blending to overlay the image with the mask
     alpha = 0.5
     overlay = cv2.addWeighted(overlay, alpha, image, 1 - alpha, 0)
-    return overlay
+    crop = 30
+    # print(center_x,center_y,'crop',int(center_x)-crop,int(center_x)+crop,int(center_y)-crop,int(center_y)+crop)
+    overlay = overlay[int(center_y)-crop:int(center_y)+crop,int(center_x)-crop:int(center_x)+crop]
+    # print(overlay.shape,'shape overlay')
+    # return overlay
+    new_width = 100
+    new_height = 100
+    return cv2.resize(overlay, (new_width, new_height), interpolation = cv2.INTER_CUBIC)
+
 
 @app.route('/background1')
 def background1():

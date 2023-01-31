@@ -245,17 +245,14 @@
     font-size: 12px;
 }
 
-.overlay_flex_container{
-    max-width: 100%;
+.overlay_flex_container {
     display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
+    flex-flow: column wrap;
+    max-width: 100%;
     position: absolute;
-}
-
-.overlay_flex_item{
-    flex: 1;
-    flex-grow:1;
-    max-width:20%;
-    max-height:20%;
+    left: 600px;
+    top: 100px;
+    align-items: center;
+    justify-content: center;
+    height: 500px;
 }
