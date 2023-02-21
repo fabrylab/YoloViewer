@@ -454,6 +454,7 @@ function update_settings(){
     for (let i = 0; i < elements.length; i++) {
 	    s[i] = elements[i].value;
     }
+    console.log(s);
     s = JSON.stringify(s); // Stringify converts a JavaScript object or value to a JSON string
             $.ajax({
             url:"/settings_to_map",
@@ -512,3 +513,5 @@ function update_picture(){
         $("#Dummy").attr("src", "/picture?time="+new Date().getTime());
     }, 1000/10);
 }
+
+// src="{{ url_for('video_feed') }}" if framerate<= limiting framerate

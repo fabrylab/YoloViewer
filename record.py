@@ -17,6 +17,7 @@ import configparser
 import clickpoints
 from clickpoints.DataFile import packToDictList
 import pandas as pd
+import pathlib
 
 def rec():
     start_time = datetime.now()
@@ -37,7 +38,10 @@ def rec():
     duration = smap.duration
     #duration = 5
     save_path = smap.save_path
-    save_path = r'C:\Software\YoloViewer\dumping'
+    save_path = str(save_path.decode('UTF-8'))
+    print(save_path,"hello")
+    # pathlib.Path(save_path).mkdir(parents=True, exist_ok=True)
+    # save_path = r'C:\Software\YoloViewer\dumping'
 
 
     sleeptime = 1/framerate

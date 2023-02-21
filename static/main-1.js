@@ -1,21 +1,24 @@
-
 const image = document.getElementById("bright_field");
-panzoom(image, {
+const panzoom0 = panzoom(image, {
   maxZoom: 3,
   minZoom: 1,
-
+  bounds: true,
+  boundsPadding: 0.5
 });
 const image2 = document.getElementById("fluorescence");
 const panzoom1 = panzoom(image2, {
     maxZoom: 3,
     minZoom: 1,
-    bounds: { left: 0, right: 720, top: 0, bottom: 540 }
+    bounds: true,
+    boundsPadding: 0.5
 });
 
 window.addEventListener("keydown", function(event) {
   if (event.code === "KeyF") {
-    document.getElementById("experiment_parameter").style.backgroundColor = "green";
-    panzoom1.reset();
+//    document.getElementById("experiment_parameter").style.backgroundColor = "green";
+//    panzoom1.reset;
+    resetZoom(panzoom0);
+    resetZoom(panzoom1);
   }
 });
 
@@ -171,7 +174,99 @@ layout_k_alpha.annotations = [{
 
 Plotly.newPlot('plot_k_alpha', data_k_alpha, layout_k_alpha, config);
 
+var adjust_settings = document.getElementById("adjust");
+adjust_settings.addEventListener("click", update_settings, false);
 
+function update_settings(){
+    const elements = Array.from(document.getElementsByClassName("set_value"));
+    var s = [];
+    for (let i = 0; i < elements.length; i++) {
+	    s[i] = elements[i].value;
+    }
+    s = JSON.stringify(s); // Stringify converts a JavaScript object or value to a JSON string
+            $.ajax({
+            url:"/settings_to_map",
+            type:"POST",
+            contentType: "application/json",
+            data: JSON.stringify(s)});
+            console.log(s);
+};
+
+var camera_output;
+function gain(){
+        fetch('http://127.0.0.1:5000/camera')
+        .then(response => response.json())
+        .then(result => {
+        camera_output = JSON.parse(result);
+        })
+        .then(() => {
+                        var gain = json2array(camera_output.gain);
+                        var framerate = json2array(camera_output.framerate);
+                        document.getElementById("button_framerate").value = framerate;
+                        document.getElementById("button_gain").value = gain;
+        });
+    setInterval(() => {
+        fetch('http://127.0.0.1:5000/camera')
+        .then(response => response.json())
+        .then(result => {
+        camera_output = JSON.parse(result);
+        })
+        .then(() => {
+                        var gain = json2array(camera_output.gain);
+                        var framerate = json2array(camera_output.framerate);
+                        var duration = json2array(camera_output.duration);
+//                        document.getElementById("show_gain").innerHTML = "gain: " + gain;
+//                        document.getElementById("show_framerate").innerHTML = framerate + " fps";
+//                        document.getElementById("show_duration").innerHTML = "duration: " + duration + " s";
+        })
+        fetch('http://127.0.0.1:5000/light')
+        .then(response => response.json())
+        .then(result => {
+        tasks = JSON.parse(result);
+        })
+        .then(() => {
+                        var streamAcquisitionDummy2 = json2array(tasks.streamAcquisitionDummy2); //second from left
+                        var mechanical = json2array(tasks.mechanical); //second from right
+                        var detect = json2array(tasks.detect); //first from right
+                        var pylonFlask = json2array(tasks.pylonFlask); //first from left
+                        if (streamAcquisitionDummy2 == "true"){
+                            document.getElementById("status_light_acquisition").style.backgroundColor = "DodgerBlue";
+                            }
+                        else if (streamAcquisitionDummy2 == "false"){
+                            document.getElementById("status_light_acquisition").style.backgroundColor = "grey";
+                        }
+                        if (mechanical == "true"){
+                            document.getElementById("status_light_mechanical").style.backgroundColor = "DodgerBlue";
+                            }
+                        else if (mechanical == "false"){
+                            document.getElementById("status_light_mechanical").style.backgroundColor = "grey";
+                        }
+                        if (detect == "true"){
+                            document.getElementById("status_light_detect").style.backgroundColor = "DodgerBlue";
+                            }
+                        else if (detect == "false"){
+                            document.getElementById("status_light_detect").style.backgroundColor = "grey";
+                        }
+                        if (pylonFlask == "true"){
+                            document.getElementById("status_light_flask").style.backgroundColor = "DodgerBlue";
+                            }
+                        else if (pylonFlask == "false"){
+                            document.getElementById("status_light_flask").style.backgroundColor = "grey";
+                        };
+        })
+//        var right_progress_bar = document.getElementById('pause').getBoundingClientRect().right; //style="width:875px"
+//        document.getElementById("progress_bar").style.width = right_progress_bar - 10 + "px";
+    }, 3000);
+};
+
+function resetZoom(panZoomInstance) {
+  panZoomInstance.moveTo(0, 0);
+  panZoomInstance.zoomAbs(0, 0, 1);
+};
+
+$(function() {$("#button_record").click(function (event) { $.getJSON('/record', { },
+    function(data) { }); return false; }); });
+$(function() {$("#button_record").click(function (event) { move(); return false; }); });
 
 
 
@@ -205,78 +300,6 @@ function change_dummy(){
         $('#pause').find("i").toggleClass("fa-pause fa-play");
    }
 };
-
-
-var camera_output;
-function gain(){
-        fetch('http://127.0.0.1:5000/camera')
-        .then(response => response.json())
-        .then(result => {
-        camera_output = JSON.parse(result);
-        })
-        .then(() => {   console.log(camera_output);
-                        var gain = json2array(camera_output.gain);
-                        var framerate = json2array(camera_output.framerate);
-                        var duration = json2array(camera_output.duration);
-                        document.getElementById("show_gain").innerHTML = "gain: " + gain;
-                        document.getElementById("show_framerate").innerHTML = framerate + " fps";
-                        document.getElementById("show_duration").innerHTML = "duration: " + duration + " s";
-        });
-    setInterval(() => {
-        fetch('http://127.0.0.1:5000/camera')
-        .then(response => response.json())
-        .then(result => {
-        camera_output = JSON.parse(result);
-        })
-        .then(() => {   console.log(camera_output);
-                        var gain = json2array(camera_output.gain);
-                        var framerate = json2array(camera_output.framerate);
-                        var duration = json2array(camera_output.duration);
-                        document.getElementById("show_gain").innerHTML = "gain: " + gain;
-                        document.getElementById("show_framerate").innerHTML = framerate + " fps";
-                        document.getElementById("show_duration").innerHTML = "duration: " + duration + " s";
-        })
-        fetch('http://127.0.0.1:5000/light')
-        .then(response => response.json())
-        .then(result => {
-        tasks = JSON.parse(result);
-        })
-        .then(() => {   console.log(tasks);
-                        var streamAcquisitionDummy2 = json2array(tasks.streamAcquisitionDummy2); //second from left
-                        var mechanical = json2array(tasks.mechanical); //second from right
-                        var detect = json2array(tasks.detect); //first from right
-                        var pylonFlask = json2array(tasks.pylonFlask); //first from left
-                        if (streamAcquisitionDummy2 == "true"){
-                            document.getElementById("status_light_acquisition").style.backgroundColor = "DodgerBlue";
-                            }
-                        else if (streamAcquisitionDummy2 == "false"){
-                            document.getElementById("status_light_acquisition").style.backgroundColor = "grey";
-                        }
-                        if (mechanical == "true"){
-                            document.getElementById("status_light_mechanical").style.backgroundColor = "DodgerBlue";
-                            }
-                        else if (mechanical == "false"){
-                            document.getElementById("status_light_mechanical").style.backgroundColor = "grey";
-                        }
-                        if (detect == "true"){
-                            document.getElementById("status_light_detect").style.backgroundColor = "DodgerBlue";
-                            }
-                        else if (detect == "false"){
-                            document.getElementById("status_light_detect").style.backgroundColor = "grey";
-                        }
-                        if (pylonFlask == "true"){
-                            document.getElementById("status_light_flask").style.backgroundColor = "DodgerBlue";
-                            }
-                        else if (pylonFlask == "false"){
-                            document.getElementById("status_light_flask").style.backgroundColor = "grey";
-                        };
-        })
-        var right_progress_bar = document.getElementById('pause').getBoundingClientRect().right; //style="width:875px"
-        document.getElementById("progress_bar").style.width = right_progress_bar - 10 + "px";
-    }, 3000);
-};
-
-
 
 var plot = document.querySelector("#plot");
 plot.addEventListener("click", show_plot, false);
@@ -478,10 +501,6 @@ function move() {
   });
 }
 
-$(function() {$("#record").click(function (event) { $.getJSON('/record', { },
-    function(data) { }); return false; }); });
-$(function() {$("#record").click(function (event) { move(); return false; }); });
-
 var notes_status = "off";
 var x = document.createElement("textarea");
 x.style.display = "none";
@@ -632,27 +651,9 @@ function settings() {
 };
 settings();
 
-function update_settings(){
-//    const dict_values = document.getElementsByClassName('settings_input'); //Pass the javascript variables to a dictionary.
-    const elements = Array.from(document.getElementsByClassName("settings_input"));
-    var s = [];
-    for (let i = 0; i < elements.length; i++) {
-	    s[i] = elements[i].value;
-    }
-    s = JSON.stringify(s); // Stringify converts a JavaScript object or value to a JSON string
-            $.ajax({
-            url:"/settings_to_map",
-            type:"POST",
-            contentType: "application/json",
-            data: JSON.stringify(s)});
-};
-
-var adjust_settings = document.getElementById("change_settings");
-adjust_settings.addEventListener("click", update_settings, false);
 
 //pause function sets video_feed to not display and gets newest image to display instead
 function pause(){
     console.log("working");
 //    document.getElementById("Dummy").src = "{{ url_for('picture') }}";
 };
-

@@ -30,13 +30,19 @@ columns = {'timestamp', 'frame', 'x', 'y', 'w', 'h', 'p', 'angle', 'long_axis', 
            'stress', 'strain', 'area', 'pressure', 'vel_fit_error', 'vel', 'vel_grad', 'eta', 'eta0', 'delta',
            'tau', 'omega', 'Gp1', 'Gp2', 'k', 'alpha'}
 data = {}
-variables = ['framerate', 'duration', 'pressure', 'aperture', 'imaging_position', 'bioink', 'room_temperature',
-             'cell_type', 'cell_passage_nr', 'time_after_harvest', 'treatment']
+variables = ['framerate', 'duration', 'save_path', 'pressure', 'imaging_position', 'aperture', 'bioink',
+                     'cell_type', 'cell_passage_nr', 'time_after_harvest', 'treatment', 'room_temperature']
 for v in variables:
     var = smap.__getattr__(v)
     if isinstance(var, (bytes, bytearray)):
         var = var.decode('UTF-8')
     data[f'{v}'] = str(var)
+
+data_config={}
+variables_config = ['objective', 'na', 'coupler']
+for v in variables_config:
+    var = config['microscope'][v]
+    data_config[f'{v}'] = str(var)
 
 # init of memmap using xml file containg the structure of the mmap file
 image_buffer = ImageBuffer(output_mmap)
@@ -65,7 +71,7 @@ def gen(camera,quality=95):
 @app.route('/', methods=['POST', 'GET'])
 @app.route('/index', methods=['POST', 'GET'])
 def index():
-        return render_template('index.html',data=data, columns=columns)
+        return render_template('index-1.html',data=data, columns=columns, data_config=data_config)
 
 @app.route('/video_feed')
 def video_feed():
@@ -149,9 +155,10 @@ def save_path():
 def to_map():
     output = request.get_json() # this is the output that was stored in the JSON within the browser
     result = json.loads(output) # this converts the json output to a python dictionary
+    print(result)
     data = {}
-    variables = ['framerate', 'duration', 'pressure', 'aperture', 'imaging_position', 'bioink', 'room_temperature',
-                     'cell_type', 'cell_passage_nr', 'time_after_harvest', 'treatment']
+    variables = ['framerate', 'duration', 'save_path', 'pressure', 'imaging_position', 'aperture', 'bioink',
+                     'cell_type', 'cell_passage_nr', 'time_after_harvest', 'treatment', 'room_temperature']
     for index, item in enumerate(result):
         var = item
         name = variables[index]
@@ -167,15 +174,15 @@ def to_map():
 @app.route("/settings_from_map")
 def from_map():
     data = {}
-    variables = ['framerate', 'duration', 'pressure', 'aperture', 'imaging_position', 'bioink', 'room_temperature',
-                     'cell_type', 'cell_passage_nr', 'time_after_harvest', 'treatment']
+    variables = ['framerate', 'duration', 'save_path', 'pressure', 'imaging_position', 'aperture', 'bioink',
+                     'cell_type', 'cell_passage_nr', 'time_after_harvest', 'treatment', 'room_temperature']
     for v in variables:
         var = smap.__getattr__(v)
         if isinstance(var, (bytes, bytearray)):
             var = var.decode('UTF-8')
         data[f'{v}'] = str(var)
-    data = pd.DataFrame(data, columns=['framerate', 'duration', 'pressure', 'aperture', 'imaging_position', 'bioink', 'room_temperature',
-                     'cell_type', 'cell_passage_nr', 'time_after_harvest', 'treatment'], index=[0])
+    data = pd.DataFrame(data, columns=['framerate', 'duration', 'save_path', 'pressure', 'imaging_position', 'aperture', 'bioink',
+                     'cell_type', 'cell_passage_nr', 'time_after_harvest', 'treatment', 'room_temperature'], index=[0])
     data = data.to_json()
     return jsonify(data)
 
