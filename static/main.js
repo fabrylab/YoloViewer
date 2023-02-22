@@ -446,15 +446,25 @@ function settings() {
            });
 };
 settings();
+var limiting_framerate = 30;
+var settings_framerate;
 
 function update_settings(){
 //    const dict_values = document.getElementsByClassName('settings_input'); //Pass the javascript variables to a dictionary.
+    settings_framerate = document.getElementById("settings_framerate").value;
+    if ( settings_framerate <= limiting_framerate){
+        stop_interval();
+        limiting_framerate = settings_framerate;
+        get_limited();
+    }
+    else {
+        limiting_framerate = 30;
+    }
     const elements = Array.from(document.getElementsByClassName("settings_input"));
     var s = [];
     for (let i = 0; i < elements.length; i++) {
 	    s[i] = elements[i].value;
     }
-    console.log(s);
     s = JSON.stringify(s); // Stringify converts a JavaScript object or value to a JSON string
             $.ajax({
             url:"/settings_to_map",
@@ -507,11 +517,8 @@ function stop_interval(){
     clearInterval(intervalId);
 };
 
-
 function update_picture(){
     intervalId = setInterval(function(){
         $("#Dummy").attr("src", "/picture?time="+new Date().getTime());
-    }, 1000/10);
+    }, 1000/limiting_framerate);
 }
-
-// src="{{ url_for('video_feed') }}" if framerate<= limiting framerate

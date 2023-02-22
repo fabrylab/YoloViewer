@@ -176,8 +176,19 @@ Plotly.newPlot('plot_k_alpha', data_k_alpha, layout_k_alpha, config);
 
 var adjust_settings = document.getElementById("adjust");
 adjust_settings.addEventListener("click", update_settings, false);
+var limiting_framerate = 30;
+var settings_framerate;
 
 function update_settings(){
+    settings_framerate = document.getElementById("settings_framerate").value;
+    if ( settings_framerate <= limiting_framerate){
+        stop_interval();
+        limiting_framerate = settings_framerate;
+        get_limited();
+    }
+    else {
+        limiting_framerate = 30;
+    }
     const elements = Array.from(document.getElementsByClassName("set_value"));
     var s = [];
     for (let i = 0; i < elements.length; i++) {
@@ -267,6 +278,23 @@ function resetZoom(panZoomInstance) {
 $(function() {$("#button_record").click(function (event) { $.getJSON('/record', { },
     function(data) { }); return false; }); });
 $(function() {$("#button_record").click(function (event) { move(); return false; }); });
+
+// new settings
+function settings() {
+            fetch('http://127.0.0.1:5000/settings_from_map')
+            .then(response => response.json())
+            .then(result => {
+            obj = JSON.parse(result);
+            })
+            .then(() => {
+                console.log(obj);
+                Object.entries(obj).forEach(
+//                ([key, value]) => console.log(key, value));
+                ([key, value]) => document.getElementById(`settings_${key}`).placeholder = `${value[0]}`);
+           });
+};
+settings();
+
 
 
 
@@ -634,22 +662,6 @@ If you do not want to write it by hand:
 };
 
 // Please add a second backslash(on keyboard:alt gr + ? or copy this: \\)to each backslash
-
-// new settings
-function settings() {
-            fetch('http://127.0.0.1:5000/settings_from_map')
-            .then(response => response.json())
-            .then(result => {
-            obj = JSON.parse(result);
-            })
-            .then(() => {
-                console.log(obj);
-                Object.entries(obj).forEach(
-//                ([key, value]) => console.log(key, value));
-                ([key, value]) => document.getElementById(`settings_${key}`).placeholder = `${value[0]}`);
-           });
-};
-settings();
 
 
 //pause function sets video_feed to not display and gets newest image to display instead
