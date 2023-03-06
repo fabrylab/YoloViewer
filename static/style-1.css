@@ -62,11 +62,12 @@ body {
     overflow: hidden;
 }
 
-#detections_images {
+.detections_images {
     display:flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: space-between;
 }
+
 
 .camera_image {
     width:100%;
@@ -236,3 +237,13 @@ body {
     height: 350px;
   }
 */
+
+#longterm_settings {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.w3-green,.w3-hover-green:hover{color:#fff!important;background-color:DodgerBlue!important}
+.w3-light-grey,.w3-hover-light-grey:hover,.w3-light-gray,.w3-hover-light-gray:hover{color:#000!important;background-color:#f1f1f1!important}
+.w3-button:hover{color:#000!important;background-color:#ccc!important}

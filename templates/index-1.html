@@ -44,25 +44,26 @@
                 </div>
                 <div id="detections_images">
                     <div class="detection">
-                        <img src="static/images/Mount.jpg" width="50px" height="50px">
-                        <img src="static/images/Mount.jpg" width="50px" height="50px">
-                        <img src="static/images/Mount.jpg" width="50px" height="50px">
+                        <img id="overlay1" src="">
                     </div>
                     <div class="detection">
+                        <img id="overlay2" src="">
+                    </div>
+                    <div class="detection">
+                        <img id="overlay3" src="">
                     </div>
                 </div>
-
             </div>
             <div id="control_bar">
-                <button id="button_play_pause"><i class="fa fa-play"></i></button>
+                <button id="button_play_pause"><i class="fa fa-pause"></i></button>
                 <button id="button_record"><i class="fa fa-circle"></i></button>
                 <div class="value_text">
                     <p>Framerate</p>
-                    <input type="text" id="button_framerate" class="set_value" value="{{data.framerate}}">
+                    <input type="text" id="button_framerate" class="set_value" value="{{data.framerate}}" onkeypress="return /[0-9]/i.test(event.key)">
                 </div>
                 <div class="value_text">
                     <p>Duration</p>
-                    <input type="text" class="set_value" value="{{data.duration}}">
+                    <input type="text" class="set_value" value="{{data.duration}}" onkeypress="return /[0-9]/i.test(event.key)">
                 </div>
                 <div class="value_text">
                     <p>Gain</p>
@@ -74,6 +75,9 @@
                 </div>
                 <button id="button_clear_plot">Clear Plot</button>
                 <button id="adjust">Adjust</button>
+            </div>
+            <div id="myProgress" class="w3-light-grey">
+                    <div id="myBar" class="w3-green" style="height:24px;width:0%"></div>
             </div>
             <div id="experiment_parameter">
                 <div class="parameter">
@@ -129,6 +133,27 @@
                     </div>
                 </div>
             </div>
+            <div id="longterm_settings">
+                <div class="parameter">
+                    <div class="value_text">
+                    <p>time between intervals</p>
+                    <input type="text" id="time_between_intervals" value="" onkeypress="return /[0-9]/i.test(event.key)">
+                    </div>
+                </div>
+                <div class="parameter">
+                    <div class="value_text">
+                    <p>recording intervals</p>
+                    <input type="text" id="recording_intervals" value="" onkeypress="return /[0-9]/i.test(event.key)">
+                    </div>
+                </div>
+                <button id="button_longterm_record"><i class="fa fa-circle"></i></button>
+                <button id="button_notes"><i class="fa fa-sticky-note-o"></i></button>
+                <button id="save_notes" style="display:none"><i class="fa fa-save"></i></button>
+            </div>
+            <div id="myProgress2" class="w3-light-grey">
+                    <div id="myBar2" class="w3-green" style="height:24px;width:0%"></div>
+            </div>
+            <textarea id="notes" placeholder = "Type your notes here..." style="display:none"></textarea>
         </div>
         <div id="visualization">
             <div id="plot_wrapper_top">
@@ -139,6 +164,24 @@
                 <div id="plot_angle_rp" class="plot"></div>
                 <div id="plot_g_g" class="plot"></div>
                 <div id="plot_k_alpha" class="plot"></div>
+            </div>
+            <div id="playground_div">
+                <div id="plot_wrapper3">
+                    <select id="plot_selector_1" onchange="for_update()">
+                    <option value="-1" selected="selected">Select x-axis</option>
+                        {% for value in columns%}
+                        <option {{key}}  name="select_{{key}}" id="select_{{key}}" value="{{value}}">{{value}}</option>
+                    {% endfor %}
+                    </select>
+                    <select id="plot_selector_2" onchange="for_update()">
+                        <option value="-1" selected="selected">Select y-axis</option>
+                        {% for value in columns%}
+                            <option {{key}}  name="select2_{{key}}" id="select2_{{key}}" value="{{value}}">{{value}}</option>
+                        {% endfor %}
+                    </select>
+                    <button id = "update_playground" onclick="update()">Update</button></br>
+                    <div id="playground_plot" class="plot" style="display:None"></div>
+                </div>
             </div>
         </div>
     </div>

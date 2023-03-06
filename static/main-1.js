@@ -180,7 +180,7 @@ var limiting_framerate = 30;
 var settings_framerate;
 
 function update_settings(){
-    settings_framerate = document.getElementById("settings_framerate").value;
+    settings_framerate = document.getElementById("button_framerate").value;
     if ( settings_framerate <= limiting_framerate){
         stop_interval();
         limiting_framerate = settings_framerate;
@@ -279,26 +279,7 @@ $(function() {$("#button_record").click(function (event) { $.getJSON('/record', 
     function(data) { }); return false; }); });
 $(function() {$("#button_record").click(function (event) { move(); return false; }); });
 
-// new settings
-function settings() {
-            fetch('http://127.0.0.1:5000/settings_from_map')
-            .then(response => response.json())
-            .then(result => {
-            obj = JSON.parse(result);
-            })
-            .then(() => {
-                console.log(obj);
-                Object.entries(obj).forEach(
-//                ([key, value]) => console.log(key, value));
-                ([key, value]) => document.getElementById(`settings_${key}`).placeholder = `${value[0]}`);
-           });
-};
-settings();
-
-
-
-
-var clear = document.querySelector("#clear");
+var clear = document.querySelector("#button_clear_plot");
 clear.addEventListener('click',set_t0,false);
 function set_t0(){
         $.ajax({
@@ -313,24 +294,258 @@ function get_all_after_t0(){
             context: document.body});
             };
 
-var dummy = document.querySelector("#dummy");
-dummy.addEventListener("click", change_dummy, false);
-
-function change_dummy(){
-   if (document.getElementById("Dummy").style.display === "none"){
-        document.getElementById("Dummy").style.display = "inline";
-        $('#dummy').find("i").toggleClass("fa-play fa-stop");
-        $('#pause').find("i").toggleClass("fa-play fa-pause");
-        }
-   else {
-        document.getElementById("Dummy").style.display = "none";
-        $('#dummy').find("i").toggleClass("fa-stop fa-play");
-        $('#pause').find("i").toggleClass("fa-pause fa-play");
-   }
+//resets plots TODO fix axes as clearing traces is changing axes
+function clear_traces(trace) {
+    Plotly.deleteTraces('plot_stress_strain', trace);
+    Plotly.deleteTraces('plot_angle_rp', 0);
+    Plotly.deleteTraces('plot_vel_profile', 0);
+    Plotly.deleteTraces('plot_g_g', 0);
+//    Plotly.deleteTraces('plot_g_g', 1);
+    Plotly.deleteTraces('plot_k_alpha', 0);
+//    Plotly.newPlot('playground_plot', 0);
 };
 
-var plot = document.querySelector("#plot");
-plot.addEventListener("click", show_plot, false);
+let intervalId2;
+get_overlay();
+
+function get_overlay(){
+    intervalId2 = setInterval(function(){
+        $("#overlay1").attr("src", "/background1?time="+new Date().getTime());
+        $("#overlay2").attr("src", "/background2?time="+new Date().getTime());
+        $("#overlay3").attr("src", "/background3?time="+new Date().getTime());
+    }, 3000);
+};
+
+var play_pause = document.getElementById("button_play_pause");
+play_pause.addEventListener("click", swap_pause, false);
+var swap_pause_status = "on";
+
+function change_dummy(){
+   if (swap_pause_status === "off"){
+        $('#button_play_pause').find("i").toggleClass("fa-play fa-pause");
+        }
+   else {
+        $('#button_play_pause').find("i").toggleClass("fa-pause fa-play");
+   }
+};
+function single_picture(){
+        $("#bright_field").attr("src", "/picture");
+        $("#fluorescence").attr("src", "/picture");
+};
+
+let intervalId;
+
+function get_limited(){
+    update_picture();
+};
+
+function stop_interval(){
+    clearInterval(intervalId);
+};
+
+function update_picture(){
+    intervalId = setInterval(function(){
+        $("#bright_field").attr("src", "/picture?time="+new Date().getTime());
+        $("#fluorescence").attr("src", "/picture?time="+new Date().getTime());
+    }, 1000/limiting_framerate);
+}
+function swap_pause() {
+    if (swap_pause_status === "on"){
+        swap_pause_status = "off";
+        stop_interval();
+        single_picture();
+        change_dummy();
+//        $('#pause').find("i").toggleClass("fa-pause ");
+    }
+    else if (swap_pause_status === "off"){
+        swap_pause_status = "on";
+        get_limited();
+//        $('#pause').find("i").toggleClass("fa-play fa-pause");
+        change_dummy();
+    }
+};
+
+var record_btn = document.querySelector('#button_record');
+var time_between_intervals;
+var recording_intervals;
+let intervalId3;
+var record_longterm_btn = document.querySelector('#button_longterm_record');
+record_longterm_btn.addEventListener("click", long_term_recording, false);
+
+function long_term_recording(){
+    document.getElementById("button_record").style.display = "none";
+    time_between_intervals = Number(document.getElementById("time_between_intervals").value);
+    recording_intervals = Number(document.getElementById("recording_intervals").value);
+    var record_interval = 1;
+    $.getJSON('/record', { },function(data) { });
+    move2();
+    intervalId3 = setInterval(function(){
+//        $(function() {$("#record").click(function (event) { move(); return false; }); });
+       if(record_interval === recording_intervals){
+           clearInterval(intervalId3);
+           document.getElementById("button_record").style.display = "inline";
+       };
+       $.getJSON('/record', { },function(data) { });
+       record_interval = record_interval+1;
+    }, time_between_intervals*1000);
+};
+
+var notes_btn = document.querySelector('#button_notes');
+notes_btn.addEventListener("click", notes, false);
+var save_btn = document.querySelector('#save_notes');
+save_btn.addEventListener("click",saveTextAsFile , false);
+
+var notes_status = "off";
+function notes() {
+    if (notes_status === "off"){
+        notes_status = "on";
+        document.getElementById("notes").style.display="inline";
+        document.getElementById("save_notes").style.display="inline";
+        }
+    else if (notes_status === "on"){
+        notes_status = "off";
+        document.getElementById("notes").style.display="none";
+        document.getElementById("save_notes").style.display="none";
+    }
+}
+
+function saveTextAsFile() {
+  var textToWrite = document.getElementById('notes').value;
+  var textFileAsBlob = new Blob([ textToWrite ], { type: 'text/plain' });
+  var fileNameToSaveAs = "notes.txt"; //filename.extension
+  var downloadLink = document.createElement("a");
+  downloadLink.download = fileNameToSaveAs;
+  downloadLink.innerHTML = "Download File";
+  if (window.webkitURL != null) {
+    // Chrome allows the link to be clicked without actually adding it to the DOM.
+    downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+  } else {
+    // Firefox requires the link to be added to the DOM before it can be clicked.
+    downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+    downloadLink.onclick = destroyClickedElement;
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+  }
+  downloadLink.click();
+}
+
+function move() {
+  document.getElementById("button_record").style.display = "none";
+  var elem = document.getElementById("myBar");
+  var width = 0;
+  fetch('http://127.0.0.1:5000/camera')
+        .then(response => response.json())
+        .then(result => {
+        camera_output = JSON.parse(result);
+        })
+        .then(() => {
+            var duration = json2array(camera_output.duration);
+            duration = duration[0];
+            var id = setInterval(frame, (duration/100)*1000);
+    function frame() {
+    if (width >= 100) {
+      clearInterval(id);
+      document.getElementById("button_record").style.display = "inline";
+    } else {
+      width++;
+      elem.style.width = width + '%';
+      elem.innerHTML = width * 1  + '%';
+    }
+  };
+  });
+}
+function move2() {
+  var elem = document.getElementById("myBar2");
+  var width = 0;
+  fetch('http://127.0.0.1:5000/camera')
+        .then(response => response.json())
+        .then(result => {
+        camera_output = JSON.parse(result);
+        })
+        .then(() => {
+            var single_duration = json2array(camera_output.duration);
+            single_duration = single_duration[0];
+            var time_between_intervals = Number(document.getElementById("time_between_intervals").value);
+            var recording_intervals = Number(document.getElementById("recording_intervals").value);
+            var whole_duration = single_duration * recording_intervals + time_between_intervals*(recording_intervals-1);
+            var id = setInterval(frame, (whole_duration/100)*1000);
+    function frame() {
+    if (width >= 100) {
+      clearInterval(id);
+    } else {
+      width++;
+      elem.style.width = width + '%';
+      elem.innerHTML = width * 1  + '%';
+    }
+  };
+  });
+}
+
+//drop-down menu for playground
+var plot_selector1 = document.getElementById("plot_selector_1");
+var selection1 = plot_selector1.value.toString();
+var plot_selector2 = document.getElementById("plot_selector_2");
+var selection2 = plot_selector2.value.toString();
+document.getElementById("plot_wrapper3").style.display="inline";
+//document.getElementById("plot_selector_1").addEventListener("change", for_update);
+//document.getElementById("plot_selector_2").addEventListener("change", for_update);
+function for_update(){
+    var plot_selector1 = document.getElementById("plot_selector_1");
+    var selection1 = plot_selector1.value.toString();
+    var plot_selector2 = document.getElementById("plot_selector_2");
+    var selection2 = plot_selector2.value.toString();
+    if (selection1 === "-1" || selection2 === "-1"){
+        document.getElementById("update_playground").style.display="none";
+    }
+    else {document.getElementById("update_playground").style.display="inline";};
+};
+for_update();
+
+function update(){
+    document.getElementById("playground_plot").style.display="inline";
+    var plot_selector1 = document.getElementById("plot_selector_1");
+    var selection1 = plot_selector1.value.toString();
+    var plot_selector2 = document.getElementById("plot_selector_2");
+    var selection2 = plot_selector2.value.toString();
+//    Plotly.newPlot('playground_plot', 0);
+//    Plotly.deleteTraces('playground_plot', 0);
+    playground(selection1,selection2);
+};
+
+
+function playground(x_sel, y_sel) {
+            fetch('http://127.0.0.1:5000/receiver')
+            .then(response => response.json())
+            .then(result => {
+            obj = JSON.parse(result);
+            })
+            .then(() => {
+                            if (x_sel != "-1" && y_sel != "-1" ){
+                                var x_axis = json2array(obj[x_sel]);
+                                var y_axis = json2array(obj[y_sel]);
+                                var value1= "${x_sel}";
+                                var value2= "${y_sel}";
+                                var data = [{x: x_axis,
+                                            y: y_axis,
+                                            mode: 'markers',
+                                            type: 'scatter'
+                                }];
+                            }
+                            else {
+                                alert("Error");
+                            }
+                            var layout = {
+                                    xaxis: {range: [Math.min(x_axis), Math.max(x_axis)], title: `${x_sel}`},
+                                    yaxis: {range: [Math.min(y_axis), Math.max(y_axis)], title: `${y_sel}`}
+                            };
+                            Plotly.newPlot('playground_plot',data, layout);
+           });
+};
+
+
+// not combined/reviewed part
+//var plot = document.querySelector("#plot");
+//plot.addEventListener("click", show_plot, false);
 
 function interval_function(interval) {
     myVar = setInterval(() => {new_recieve()}, interval);
@@ -347,21 +562,6 @@ function show_plot(){
     interval_function(10000);
 //    clearInterval(myVar);
 }
-
-function test(){
-    alert("!");
-};
-
-//resets plots
-function clear_traces(trace) {
-    Plotly.deleteTraces('graph', trace);
-    Plotly.newPlot('graph2', 0);
-    Plotly.deleteTraces('graph3', 0);
-    Plotly.deleteTraces('graph4', 0);
-    Plotly.deleteTraces('graph4', 1);
-    Plotly.deleteTraces('graph5', 0);
-    Plotly.newPlot('playground_plot', 0);
-};
 
 // function to transform json object to javascript array
 function json2array(json){
@@ -465,15 +665,6 @@ function new_recieve() {
                         Plotly.newPlot('graph5',data, layout)
        });
 };
-// TODO: get this pause button working -> pause gen(ImageBuffer) in flask
-var vid = document.getElementById("Dummy");
-var pause_button = document.getElementById("pause");
-var swap_pause_status = "on";
-//pause_button.addEventListener("click", pauseVid, false);
-pause_button.addEventListener("click", swap_pause, false);
-if (vid.style.display="none"){
-    $('#pause').find("i").toggleClass("fa-pause fa-play");
-};
 
 /*
 function switch_fullscreen() {
@@ -486,186 +677,87 @@ function switch_fullscreen() {
 };
 */
 
-function swap_pause() {
-//    document.getElementById("pause").innerHTML = "Paragraph changed!";
-
-    if (swap_pause_status === "on"){
-//        $('#pause').find("i").toggleClass("fa-pause fa-play");
-        swap_pause_status = "off";
-        change_dummy();
-        pause();
-        document.getElementById("Dummy").src ="/picture";
-        document.getElementById("Dummy").style.display = "inline";
-    }
-    else if (swap_pause_status === "off"){
-//        $('#pause').find("i").toggleClass("fa-play fa-pause");
-        swap_pause_status = "on";
-        change_dummy();
-        document.getElementById("Dummy").src ="/video_feed";
-    }
-};
-
-function move() {
-  var elem = document.getElementById("myBar");
-  var width = 0;
-  fetch('http://127.0.0.1:5000/camera')
-        .then(response => response.json())
-        .then(result => {
-        camera_output = JSON.parse(result);
-        })
-        .then(() => {
-            var duration = json2array(camera_output.duration);
-            duration = duration[0];
-            var id = setInterval(frame, (duration/100)*1000);
-    function frame() {
-    if (width >= 100) {
-      clearInterval(id);
-    } else {
-      width++;
-      elem.style.width = width + '%';
-      elem.innerHTML = width * 1  + '%';
-    }
-  };
-  });
-}
-
-var notes_status = "off";
-var x = document.createElement("textarea");
-x.style.display = "none";
-function notes() {
-    if (notes_status === "off"){
-        x.style.position = "absolute";
-        x.style.left = "320px";
-        x.style.width = "545px";
-        x.style.height = "230px";
-        x.style.display = "inline";
-        x.placeholder = "Type your notes here...";
-        x.id = "notes";
-        document.body.appendChild(x);
-        notes_status = "on";
-        document.getElementById("microscope_settings_div").style.display="none";
-        document.getElementById("save_notes").style.display="inline";
-        }
-    else if (notes_status === "on"){
-        notes_status = "off";
-        document.getElementById("microscope_settings_div").style.display="inline";
-        x.style.display = "none";
-        document.body.appendChild(x);
-        document.getElementById("save_notes").style.display="none";
-    }
-}
-
-
-function saveTextAsFile() {
-  var textToWrite = document.getElementById('notes').value;
-  var textFileAsBlob = new Blob([ textToWrite ], { type: 'text/plain' });
-  var fileNameToSaveAs = "notes.txt"; //filename.extension
-  var downloadLink = document.createElement("a");
-  downloadLink.download = fileNameToSaveAs;
-  downloadLink.innerHTML = "Download File";
-  if (window.webkitURL != null) {
-    // Chrome allows the link to be clicked without actually adding it to the DOM.
-    downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
-  } else {
-    // Firefox requires the link to be added to the DOM before it can be clicked.
-    downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
-    downloadLink.onclick = destroyClickedElement;
-    downloadLink.style.display = "none";
-    document.body.appendChild(downloadLink);
-  }
-  downloadLink.click();
-}
-
 function destroyClickedElement(event) {// remove the link from the DOM
   document.body.removeChild(event.target);
 }
 
 //drop-down menu for playground
-var plot_selector1 = document.getElementById("plot_selector_1");
-var selection1 = plot_selector1.value.toString();
-var plot_selector2 = document.getElementById("plot_selector_2");
-var selection2 = plot_selector2.value.toString();
-document.getElementById("plot_wrapper3").style.display="inline";
-//document.getElementById("plot_selector_1").addEventListener("change", for_update);
-//document.getElementById("plot_selector_2").addEventListener("change", for_update);
-function for_update(){
-    var plot_selector1 = document.getElementById("plot_selector_1");
-    var selection1 = plot_selector1.value.toString();
-    var plot_selector2 = document.getElementById("plot_selector_2");
-    var selection2 = plot_selector2.value.toString();
-    if (selection1 === "-1" || selection2 === "-1"){
-        document.getElementById("update_playground").style.display="none";
-    }
-    else {document.getElementById("update_playground").style.display="inline";};
-};
-for_update();
-
-function update(){
-    document.getElementById("playground_plot").style.display="inline";
-    var plot_selector1 = document.getElementById("plot_selector_1");
-    var selection1 = plot_selector1.value.toString();
-    var plot_selector2 = document.getElementById("plot_selector_2");
-    var selection2 = plot_selector2.value.toString();
-//    Plotly.newPlot('playground_plot', 0);
-//    Plotly.deleteTraces('playground_plot', 0);
-    playground(selection1,selection2);
-};
-
-
-function playground(x_sel, y_sel) {
-            fetch('http://127.0.0.1:5000/receiver')
-            .then(response => response.json())
-            .then(result => {
-            obj = JSON.parse(result);
-            })
-            .then(() => {
-                            if (x_sel != "-1" && y_sel != "-1" ){
-                                var x_axis = json2array(obj[x_sel]);
-                                var y_axis = json2array(obj[y_sel]);
-                                var value1= "${x_sel}";
-                                var value2= "${y_sel}";
-                                var data = [{x: x_axis,
-                                            y: y_axis,
-                                            mode: 'markers',
-                                            type: 'scatter'
-                                }];
-                            }
-                            else {
-                                alert("Error");
-                            }
-                            var layout = {
-                                    xaxis: {range: [Math.min(x_axis), Math.max(x_axis)], title: `${x_sel}`},
-                                    yaxis: {range: [Math.min(y_axis), Math.max(y_axis)], title: `${y_sel}`}
-                            };
-                            Plotly.newPlot('playground_plot',data, layout);
-           });
-};
-
-var save_path;
-function pop() {
-     save_path = prompt(`Please enter your desired save path.
-If you do not want to write it by hand:
-     first: open the explorer
-     second: navigate to the desired directory
-     third: left click in the address bar left of refresh (circular arrow)
-     last: copy/paste the marked path to this window`, `C:\\Software\\YoloViewer\\example`);
-     console.log(save_path);
-        const dict_values = {save_path} //Pass the javascript variables to a dictionary.
-        var s = JSON.stringify(dict_values); // Stringify converts a JavaScript object or value to a JSON string
-//        s = s.replace(String.fromCharCode(92,92),String.fromCharCode(92));
-        console.log(s);
-            $.ajax({
-            url:"/save",
-            type:"POST",
-            contentType: "application/json",
-            data: JSON.stringify(s)});
-};
-
-// Please add a second backslash(on keyboard:alt gr + ? or copy this: \\)to each backslash
-
-
-//pause function sets video_feed to not display and gets newest image to display instead
-function pause(){
-    console.log("working");
-//    document.getElementById("Dummy").src = "{{ url_for('picture') }}";
-};
+//var plot_selector1 = document.getElementById("plot_selector_1");
+//var selection1 = plot_selector1.value.toString();
+//var plot_selector2 = document.getElementById("plot_selector_2");
+//var selection2 = plot_selector2.value.toString();
+//document.getElementById("plot_wrapper3").style.display="inline";
+////document.getElementById("plot_selector_1").addEventListener("change", for_update);
+////document.getElementById("plot_selector_2").addEventListener("change", for_update);
+//function for_update(){
+//    var plot_selector1 = document.getElementById("plot_selector_1");
+//    var selection1 = plot_selector1.value.toString();
+//    var plot_selector2 = document.getElementById("plot_selector_2");
+//    var selection2 = plot_selector2.value.toString();
+//    if (selection1 === "-1" || selection2 === "-1"){
+//        document.getElementById("update_playground").style.display="none";
+//    }
+//    else {document.getElementById("update_playground").style.display="inline";};
+//};
+//for_update();
+//
+//function update(){
+//    document.getElementById("playground_plot").style.display="inline";
+//    var plot_selector1 = document.getElementById("plot_selector_1");
+//    var selection1 = plot_selector1.value.toString();
+//    var plot_selector2 = document.getElementById("plot_selector_2");
+//    var selection2 = plot_selector2.value.toString();
+////    Plotly.newPlot('playground_plot', 0);
+////    Plotly.deleteTraces('playground_plot', 0);
+//    playground(selection1,selection2);
+//};
+//
+//
+//function playground(x_sel, y_sel) {
+//            fetch('http://127.0.0.1:5000/receiver')
+//            .then(response => response.json())
+//            .then(result => {
+//            obj = JSON.parse(result);
+//            })
+//            .then(() => {
+//                            if (x_sel != "-1" && y_sel != "-1" ){
+//                                var x_axis = json2array(obj[x_sel]);
+//                                var y_axis = json2array(obj[y_sel]);
+//                                var value1= "${x_sel}";
+//                                var value2= "${y_sel}";
+//                                var data = [{x: x_axis,
+//                                            y: y_axis,
+//                                            mode: 'markers',
+//                                            type: 'scatter'
+//                                }];
+//                            }
+//                            else {
+//                                alert("Error");
+//                            }
+//                            var layout = {
+//                                    xaxis: {range: [Math.min(x_axis), Math.max(x_axis)], title: `${x_sel}`},
+//                                    yaxis: {range: [Math.min(y_axis), Math.max(y_axis)], title: `${y_sel}`}
+//                            };
+//                            Plotly.newPlot('playground_plot',data, layout);
+//           });
+//};
+//
+//var save_path;
+//function pop() {
+//     save_path = prompt(`Please enter your desired save path.
+//If you do not want to write it by hand:
+//     first: open the explorer
+//     second: navigate to the desired directory
+//     third: left click in the address bar left of refresh (circular arrow)
+//     last: copy/paste the marked path to this window`, `C:\\Software\\YoloViewer\\example`);
+//     console.log(save_path);
+//        const dict_values = {save_path} //Pass the javascript variables to a dictionary.
+//        var s = JSON.stringify(dict_values); // Stringify converts a JavaScript object or value to a JSON string
+////        s = s.replace(String.fromCharCode(92,92),String.fromCharCode(92));
+//        console.log(s);
+//            $.ajax({
+//            url:"/save",
+//            type:"POST",
+//            contentType: "application/json",
+//            data: JSON.stringify(s)});
+//};

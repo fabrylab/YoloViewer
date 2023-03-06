@@ -1,4 +1,4 @@
-from flask import Flask,render_template, Response, request, jsonify, send_file
+from flask import Flask,render_template, Response, request, jsonify
 import time
 import numpy as np
 from PIL import Image
@@ -13,7 +13,6 @@ import pandas as pd
 import json
 from bg_task_checker import check_tasks
 import cv2
-import matplotlib.pyplot as plt
 
 app = Flask(__name__)
 #read config
@@ -220,7 +219,6 @@ def background(number, quality= 95):
     # return Response(frame, mimetype='multipart/form-data, boundary=AaB03x')
     return frame, df
 
-# not working so far
 def overlay_ellipse(frame, df, number):
     # ['timestamp', 'frame', 'x', 'y', 'w', 'h', 'p']
     image = np.array(frame)
@@ -244,8 +242,17 @@ def overlay_ellipse(frame, df, number):
     mask = np.logical_and(mask_outter, mask_inner)
     # Create a copy of the image
     overlay = image.copy()
+    # Convert to 3-channel color image
+    overlay = cv2.cvtColor(overlay, cv2.COLOR_GRAY2BGR)
     # Set all pixels in the overlay outside the mask to 0 (black)
-    overlay[~mask] = 0
+    # overlay[~mask] = 0
+    # Set all pixels in the overlay outside the mask to a color
+    color = (0, 0, 255) # red color
+    overlay[~mask] = color
+    print(np.shape(overlay), 'shape overlay')
+    # image = cv2.resize(image, (overlay.shape[1], overlay.shape[0]), interpolation=cv2.INTER_CUBIC)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    print(np.shape(image))
     # Use alpha blending to overlay the image with the mask
     alpha = 0.5
     overlay = cv2.addWeighted(overlay, alpha, image, 1 - alpha, 0)
@@ -254,8 +261,8 @@ def overlay_ellipse(frame, df, number):
     overlay = overlay[int(center_y)-crop:int(center_y)+crop,int(center_x)-crop:int(center_x)+crop]
     # print(overlay.shape,'shape overlay')
     # return overlay
-    new_width = 100
-    new_height = 100
+    new_width = 90
+    new_height = 90
     return cv2.resize(overlay, (new_width, new_height), interpolation = cv2.INTER_CUBIC)
 
 
@@ -325,4 +332,4 @@ camera_thread = CameraThread()
 camera_thread.start()
 
 if __name__ == '__main__':
-    app.run(debug=True, use_debugger=False, use_reloader=False)
+    app.run(debug=True)

@@ -1,12 +1,9 @@
 import configparser
-import matplotlib.pyplot as plt
 from includes.MemMap import MemMap
-import numpy as np
 from yolo.model import build_net,predict
 from helper_functions import ImageBuffer
 import signal
 from time import time
-import sqlite3
 import tensorflow as tf
 from sql_helper import *
 import os
